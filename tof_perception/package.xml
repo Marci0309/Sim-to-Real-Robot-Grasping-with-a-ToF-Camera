@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>tof_perception</name>
+  <version>0.0.1</version>
+  <description>Thesis package: tof_perception</description>
+  <maintainer email="you@example.com">Your Name</maintainer>
+  <license>MIT</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>
