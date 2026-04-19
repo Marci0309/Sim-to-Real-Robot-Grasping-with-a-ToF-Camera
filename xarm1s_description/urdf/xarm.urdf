@@ -353,5 +353,123 @@
             </plugin>
         </sensor>
     </gazebo>
+    <!-- ============================================================
+         GRIPPER — scissor-link parallel jaw (xArm1S stock)
+         Meshes exported from OnShape in mm → scale 0.001
+         ============================================================ -->
 
+    <material name="GripperBlack">
+        <color rgba="0.12 0.12 0.12 1.0"/>
+    </material>
+
+    <!-- Gripper base: fixed to xarm_2_link -->
+    <link name="gripper_base_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_base.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="Blue"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_base.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.1"/>
+            <inertia ixx="0.001" iyy="0.001" izz="0.001" ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+    </link>
+
+    <joint name="gripper_base_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <parent link="xarm_2_link"/>
+        <child  link="gripper_base_link"/>
+    </joint>
+
+    <!-- Left finger -->
+    <link name="gripper_left_finger_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_left_finger.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="GripperBlack"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_left_finger.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.02"/>
+            <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+    </link>
+
+    <joint name="gripper_left_finger_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="15" lower="-0.45" upper="0.1" velocity="2.0"/>   <!-- ← small -->
+        <parent link="gripper_base_link"/>
+        <child  link="gripper_left_finger_link"/>
+    </joint>
+
+    <!-- Right finger (mimics left) -->
+    <link name="gripper_right_finger_link">
+        <visual>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_right_finger.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="GripperBlack"/>
+        </visual>
+        <collision>
+            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <geometry>
+                <mesh filename="package://xarm1s_description/meshes/gripper_right_finger.stl"
+                      scale="0.001 0.001 0.001"/>
+            </geometry>
+        </collision>
+        <inertial>
+            <mass value="0.02"/>
+            <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
+        </inertial>
+    </link>
+
+    <joint name="gripper_right_finger_joint" type="revolute">
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <axis xyz="0 1 0"/>
+        <limit effort="15" lower="-0.70" upper="0.10" velocity="2.0"/>
+        <parent link="gripper_base_link"/>
+        <child  link="gripper_right_finger_link"/>
+        <mimic joint="gripper_left_finger_joint" multiplier="-1.0" offset="0.0"/>
+    </joint>
+
+    <!-- Tool tip / grasp frame for MoveIt / IK -->
+    <link name="gripper_tip_link"/>
+    <joint name="gripper_tip_joint" type="fixed">
+        <origin rpy="0 0 0" xyz="0 0 0.09"/>
+        <parent link="gripper_base_link"/>
+        <child  link="gripper_tip_link"/>
+    </joint>
+
+    <transmission name="trans_gripper_left_finger_joint">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="gripper_left_finger_joint">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="gripper_left_finger_joint_motor">
+            <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+            <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 </robot>
