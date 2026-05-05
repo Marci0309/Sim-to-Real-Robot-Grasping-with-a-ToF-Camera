@@ -37,4 +37,14 @@ def generate_launch_description():
         )
     ])
 
-    return LaunchDescription([gazebo, rsp, spawn])
+    # Static TF: world -> xarm_base_link (matches spawn z=0.76).
+    # Required so detected poses can be expressed in the 'world' frame
+    # for direct comparison against Gazebo ground-truth model states.
+    world_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0.76', '0', '0', '0', 'world', 'xarm_base_link'],
+        output='screen'
+    )
+
+    return LaunchDescription([gazebo, rsp, spawn, world_tf])

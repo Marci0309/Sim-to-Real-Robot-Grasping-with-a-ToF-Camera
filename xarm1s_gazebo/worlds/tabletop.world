@@ -4,6 +4,14 @@
     <include><uri>model://ground_plane</uri></include>
     <include><uri>model://sun</uri></include>
 
+    <!-- gazebo_ros_state: publishes /model_states (gazebo_msgs/ModelStates)
+         with the world-frame pose of every spawned model. Required by the
+         evaluation node to obtain ground-truth object positions. -->
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros><namespace>/</namespace></ros>
+      <update_rate>30.0</update_rate>
+    </plugin>
+
     <model name="table">
       <static>true</static>
       <link name="link">
@@ -23,7 +31,7 @@
       <link name="link">
         <visual name="visual">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
-          <material><ambient>1 0 0 1</ambient></material>
+          <material><ambient>0.3 0 0 1</ambient><diffuse>1 0 0 1</diffuse><specular>0.1 0.1 0.1 1</specular></material>
         </visual>
         <collision name="collision">
           <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
@@ -37,7 +45,7 @@
       <link name="link">
         <visual name="visual">
           <geometry><cylinder><radius>0.025</radius><length>0.08</length></cylinder></geometry>
-          <material><ambient>0 0 1 1</ambient></material>
+          <material><ambient>0 0 0.3 1</ambient><diffuse>0 0 1 1</diffuse><specular>0.1 0.1 0.1 1</specular></material>
         </visual>
         <collision name="collision">
           <geometry><cylinder><radius>0.025</radius><length>0.08</length></cylinder></geometry>

@@ -285,7 +285,8 @@
     </link>
 
     <joint name="overhead_camera_mount_joint" type="fixed">
-        <origin rpy="0 0 0" xyz="0.0 0.0 1.55"/>
+        <!-- xArm 1S extended height ~0.35 m + 0.35 m clearance = 0.70 m above base -->
+        <origin rpy="0 0 0" xyz="0.0 0.0 0.70"/>
         <parent link="xarm_base_link"/>
         <child link="overhead_camera_mount"/>
     </joint>
@@ -294,6 +295,16 @@
         <origin rpy="0 1.5708 0" xyz="0 0 -0.02"/>
         <parent link="overhead_camera_mount"/>
         <child link="overhead_camera_link"/>
+    </joint>
+
+    <!-- Optical frame per REP-103: Z forward, X right, Y down.
+         Body frame (overhead_camera_link) is X-forward, Z-up.
+         Rotation: Rz(-pi/2) * Rx(-pi/2). -->
+    <link name="overhead_camera_optical_frame"/>
+    <joint name="overhead_camera_optical_joint" type="fixed">
+        <origin rpy="-1.5707963 0 -1.5707963" xyz="0 0 0"/>
+        <parent link="overhead_camera_link"/>
+        <child link="overhead_camera_optical_frame"/>
     </joint>
 
     <!-- RGB camera -->
@@ -316,7 +327,7 @@
                     <remapping>~/camera_info:=/overhead_camera/color/camera_info</remapping>
                 </ros>
                 <camera_name>overhead_rgb</camera_name>
-                <frame_name>overhead_camera_link</frame_name>
+                <frame_name>overhead_camera_optical_frame</frame_name>
             </plugin>
         </sensor>
     </gazebo>
@@ -347,7 +358,7 @@
                     <remapping>~/camera_info:=/overhead_camera/depth/camera_info</remapping>
                 </ros>
                 <camera_name>overhead_depth</camera_name>
-                <frame_name>overhead_camera_link</frame_name>
+                <frame_name>overhead_camera_optical_frame</frame_name>
                 <min_depth>0.1</min_depth>
                 <max_depth>3.0</max_depth>
             </plugin>
