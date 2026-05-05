@@ -27,7 +27,6 @@
     <material name="SickBlue">
         <color rgba="0.3058 0.5921 0.7294 1.0" />
     </material>
-    <property name="M_PI" value="3.1415926535897931" />
 
     <link name="xarm_base_link">
         <visual>
@@ -244,11 +243,51 @@
         </actuator>
     </transmission>
 
+    <!-- ===== ros2_control hardware interface ===== -->
+    <ros2_control name="GazeboSystem" type="system">
+        <hardware>
+            <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+        </hardware>
+        <joint name="xarm_2_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="xarm_3_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="xarm_4_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="xarm_5_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="xarm_6_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="gripper_left_finger_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+        <joint name="gripper_right_finger_joint">
+            <command_interface name="position"/>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+    </ros2_control>
+
     <gazebo>
-        <static>true</static>
-        <static>true</static>
-        <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-            <robotNamespace>/</robotNamespace>
+        <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+            <parameters>$(find xarm1s_description)/config/controllers.yaml</parameters>
         </plugin>
     </gazebo>
 
@@ -322,10 +361,6 @@
                 <clip><near>0.1</near><far>3.0</far></clip>
             </camera>
             <plugin name="overhead_rgb_plugin" filename="libgazebo_ros_camera.so">
-                <ros>
-                    <remapping>~/image_raw:=/overhead_camera/color/image_raw</remapping>
-                    <remapping>~/camera_info:=/overhead_camera/color/camera_info</remapping>
-                </ros>
                 <camera_name>overhead_rgb</camera_name>
                 <frame_name>overhead_camera_optical_frame</frame_name>
             </plugin>
@@ -352,11 +387,6 @@
                 </noise>
             </camera>
             <plugin name="overhead_depth_plugin" filename="libgazebo_ros_camera.so">
-                <ros>
-                    <remapping>~/image_raw:=/overhead_camera/depth/image_raw</remapping>
-                    <remapping>~/points:=/overhead_camera/depth/points</remapping>
-                    <remapping>~/camera_info:=/overhead_camera/depth/camera_info</remapping>
-                </ros>
                 <camera_name>overhead_depth</camera_name>
                 <frame_name>overhead_camera_optical_frame</frame_name>
                 <min_depth>0.1</min_depth>
@@ -459,10 +489,15 @@
     <joint name="gripper_right_finger_joint" type="revolute">
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <axis xyz="0 1 0"/>
-        <limit effort="15" lower="-0.70" upper="0.10" velocity="2.0"/>
+        <!-- Right finger limits are the ANTI-MIRROR of the left finger
+             (-0.45..+0.10) so we can drive right = -left over the full
+             range without clamping. Closed: left=+0.10, right=-0.10. -->
+        <limit effort="15" lower="-0.10" upper="0.45" velocity="2.0"/>
         <parent link="gripper_base_link"/>
         <child  link="gripper_right_finger_link"/>
-        <mimic joint="gripper_left_finger_joint" multiplier="-1.0" offset="0.0"/>
+        <!-- Right finger is commanded directly by gripper_controller with the
+             opposite sign — Humble's gazebo_ros2_control does not reliably
+             honor URDF <mimic> for actuated joints, so we drive both. -->
     </joint>
 
     <!-- Tool tip / grasp frame for MoveIt / IK -->
