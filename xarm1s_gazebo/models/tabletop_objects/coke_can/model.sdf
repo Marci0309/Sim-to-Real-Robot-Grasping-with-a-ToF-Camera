@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="coke_can">
+    <link name="link">
+      <inertial>
+        <mass>0.330</mass>
+        <inertia>
+          <ixx>0.00038</ixx><iyy>0.00038</iyy><izz>0.00007</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <pose>0 0 0 0 -0.83 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://coke_can/meshes/coke_decimated.obj</uri>
+            <scale>0.000828 0.000828 0.000828</scale>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <cylinder>
+            <radius>0.033</radius>
+            <length>0.115</length>
+          </cylinder>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

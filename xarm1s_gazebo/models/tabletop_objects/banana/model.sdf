@@ -1,0 +1,27 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="banana">
+    <link name="link">
+      <inertial>
+        <mass>0.120</mass>
+        <inertia>
+          <ixx>0.0001</ixx><iyy>0.0003</iyy><izz>0.0003</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://banana/meshes/banana_decimated.obj</uri>
+            <scale>0.02655 0.02655 0.02655</scale>
+          </mesh>
+        </geometry>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <box><size>0.18 0.04 0.04</size></box>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>

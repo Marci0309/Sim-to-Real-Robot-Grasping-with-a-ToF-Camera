@@ -12,6 +12,7 @@
       <update_rate>30.0</update_rate>
     </plugin>
 
+    <!-- Table: top surface at z = 0.75 -->
     <model name="table">
       <static>true</static>
       <link name="link">
@@ -26,31 +27,49 @@
       </link>
     </model>
 
-    <model name="cube">
-      <pose>0.1 0.0 0.78 0 0 0</pose>
-      <link name="link">
-        <visual name="visual">
-          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
-          <material><ambient>0.3 0 0 1</ambient><diffuse>1 0 0 1</diffuse><specular>0.1 0.1 0.1 1</specular></material>
-        </visual>
-        <collision name="collision">
-          <geometry><box><size>0.05 0.05 0.05</size></box></geometry>
-        </collision>
-        <inertial><mass>0.1</mass></inertial>
-      </link>
-    </model>
+    <!-- Coke can (cylinder, h=0.115m, r=0.033m): base on table → z = 0.75 + 0.115/2 -->
+    <include>
+      <name>coke_can</name>
+      <pose>0.25 0.15 0.783 1.5708 0 0</pose>
+      <uri>model://coke_can</uri>
+    </include>
 
-    <model name="cylinder">
-      <pose>-0.1 0.1 0.78 0 0 0</pose>
+    <!-- Banana (lying flat): center ~2cm above table -->
+    <include>
+      <name>banana</name>
+      <pose>0.25 -0.15 0.80 0 0 0</pose>
+      <uri>model://banana</uri>
+    </include>
+
+    <!-- Golf ball (sphere r=0.0214m): center at z = 0.75 + 0.0214 -->
+    <include>
+      <name>golf_ball</name>
+      <pose>-0.25 0.15 0.80 0 0 0</pose>
+      <uri>model://golf_ball</uri>
+    </include>
+
+    <!-- Blue cardboard box (60x40x30mm) primitive, kept inline -->
+    <model name="blue_box">
+      <pose>-0.25 -0.15 0.80 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry><cylinder><radius>0.025</radius><length>0.08</length></cylinder></geometry>
-          <material><ambient>0 0 0.3 1</ambient><diffuse>0 0 1 1</diffuse><specular>0.1 0.1 0.1 1</specular></material>
+          <geometry><box><size>0.060 0.040 0.030</size></box></geometry>
+          <material>
+            <ambient>0.0 0.1 0.5 1</ambient>
+            <diffuse>0.0 0.2 0.9 1</diffuse>
+            <specular>0.05 0.05 0.05 1</specular>
+          </material>
         </visual>
         <collision name="collision">
-          <geometry><cylinder><radius>0.025</radius><length>0.08</length></cylinder></geometry>
+          <geometry><box><size>0.060 0.040 0.030</size></box></geometry>
         </collision>
-        <inertial><mass>0.1</mass></inertial>
+        <inertial>
+          <mass>0.05</mass>
+          <inertia>
+            <ixx>1e-5</ixx><iyy>1e-5</iyy><izz>1e-5</izz>
+            <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+          </inertia>
+        </inertial>
       </link>
     </model>
 

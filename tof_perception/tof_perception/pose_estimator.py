@@ -52,14 +52,24 @@ from rclpy.duration import Duration
 # Tune these by viewing the live mask topic and adjusting if objects
 # are added/changed. Hue range is 0-179 in OpenCV, S/V are 0-255.
 # ──────────────────────────────────────────────────────────────────────
+# Order of OBJECT_LABELS sets the order of poses in /detected_objects.
+OBJECT_LABELS = ["coke_can", "banana", "golf_ball", "blue_box"]
+
 HSV_RANGES = {
-    "red_cube": [
+    "coke_can": [
         # Red wraps around the hue circle — need two ranges
-        (np.array([0,   100, 80]),  np.array([10,  255, 255])),
-        (np.array([170, 100, 80]),  np.array([179, 255, 255])),
+        (np.array([  0, 120,  70]), np.array([ 10, 255, 255])),
+        (np.array([170, 120,  70]), np.array([179, 255, 255])),
     ],
-    "blue_cylinder": [
-        (np.array([100, 100, 50]), np.array([130, 255, 255])),
+    "banana": [
+        (np.array([ 20, 100, 100]), np.array([ 35, 255, 255])),
+    ],
+    "golf_ball": [
+        # Magenta primitive — separated from red/banana to avoid hue overlap
+        (np.array([140,  80,  80]), np.array([165, 255, 255])),
+    ],
+    "blue_box": [
+        (np.array([100, 120,  50]), np.array([130, 255, 255])),
     ],
 }
 
@@ -136,10 +146,11 @@ class PoseEstimator(Node):
             PoseArray, '/detected_objects', 10)
 
         # Debug topics — can visualize masks in RViz/rqt to tune HSV ranges
-        self.mask_pub_red = self.create_publisher(
-            Image, '/pose_estimator/mask_red', 5)
-        self.mask_pub_blue = self.create_publisher(
-            Image, '/pose_estimator/mask_blue', 5)
+        self.mask_pubs = {
+            label: self.create_publisher(
+                Image, f'/pose_estimator/mask_{label}', 5)
+            for label in OBJECT_LABELS
+        }
 
         # Process synchronized frames at 10 Hz (camera publishes at 30 Hz)
         self.timer = self.create_timer(0.1, self._process)
@@ -190,20 +201,22 @@ class PoseEstimator(Node):
         hsv = cv2.cvtColor(rgb, cv2.COLOR_BGR2HSV)
 
         # 2) Per-object color masks
-        red_mask = self._color_mask(hsv, HSV_RANGES['red_cube'])
-        blue_mask = self._color_mask(hsv, HSV_RANGES['blue_cylinder'])
-
-        # Publish masks for debugging (view in rqt_image_view)
-        self._publish_mask(red_mask, self.mask_pub_red)
-        self._publish_mask(blue_mask, self.mask_pub_blue)
+        masks = {
+            label: self._color_mask(hsv, HSV_RANGES[label])
+            for label in OBJECT_LABELS
+        }
+        for label, mask in masks.items():
+            self._publish_mask(mask, self.mask_pubs[label])
 
         # 3) Compute pose per object using masked depth + camera intrinsics
         camera_frame = self.latest_rgb_header.frame_id \
             or 'overhead_camera_optical_frame'
         stamp = self.latest_rgb_header.stamp
 
-        red_pose = self._estimate_object_pose(red_mask, depth, 'red_cube')
-        blue_pose = self._estimate_object_pose(blue_mask, depth, 'blue_cylinder')
+        poses = [
+            self._estimate_object_pose(masks[label], depth, label)
+            for label in OBJECT_LABELS
+        ]
 
         # 4) Transform from camera optical frame to target frame (default: 'world')
         #    via tf2 [Foote 2013]. Skip publishing if the transform is not yet
@@ -224,7 +237,7 @@ class PoseEstimator(Node):
         pose_array.header.stamp = stamp
         pose_array.header.frame_id = self.target_frame
 
-        for pose in (red_pose, blue_pose):
+        for pose in poses:
             if pose is None:
                 continue
             pose_array.poses.append(do_transform_pose(pose, tf))

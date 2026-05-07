@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="golf_ball">
+    <link name="link">
+      <inertial>
+        <mass>0.046</mass>
+        <inertia>
+          <ixx>8e-6</ixx><iyy>8e-6</iyy><izz>8e-6</izz>
+          <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
+        </inertia>
+      </inertial>
+      <visual name="visual">
+        <geometry>
+          <sphere><radius>0.0214</radius></sphere>
+        </geometry>
+        <material>
+          <ambient>0.7 0.0 0.5 1</ambient>
+          <diffuse>0.9 0.0 0.7 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <sphere><radius>0.0214</radius></sphere>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
