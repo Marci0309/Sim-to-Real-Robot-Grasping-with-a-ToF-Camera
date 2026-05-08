@@ -1,0 +1,46 @@
+[
+  {
+    "name": "banana",
+    "table_distance_m_measured": 0.6831,
+    "object_body_depth_m": 0.657,
+    "object_height_mm": 26.1,
+    "object_pixels": 2340,
+    "body_sigma_mm": 0.616,
+    "body_dropout_rate": 0.0,
+    "edge_ring_pixels": 1500,
+    "edge_flying_pixel_rate": 0.9867
+  },
+  {
+    "name": "coke_can",
+    "table_distance_m_measured": 0.683,
+    "object_body_depth_m": 0.6357,
+    "object_height_mm": 47.3,
+    "object_pixels": 2592,
+    "body_sigma_mm": 0.703,
+    "body_dropout_rate": 0.0,
+    "edge_ring_pixels": 1507,
+    "edge_flying_pixel_rate": 0.5309
+  },
+  {
+    "name": "empty_table",
+    "table_distance_m_measured": 0.683,
+    "object_body_depth_m": null,
+    "object_height_mm": null,
+    "object_pixels": 0,
+    "body_sigma_mm": NaN,
+    "body_dropout_rate": NaN,
+    "edge_ring_pixels": 0,
+    "edge_flying_pixel_rate": NaN
+  },
+  {
+    "name": "golf_ball",
+    "table_distance_m_measured": 0.6831,
+    "object_body_depth_m": 0.6534,
+    "object_height_mm": 29.6,
+    "object_pixels": 538,
+    "body_sigma_mm": 0.646,
+    "body_dropout_rate": 0.0,
+    "edge_ring_pixels": 449,
+    "edge_flying_pixel_rate": 0.9822
+  }
+]

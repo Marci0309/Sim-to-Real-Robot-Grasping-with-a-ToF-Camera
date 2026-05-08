@@ -1,0 +1,57 @@
+{
+  "model": "sigma_z(z) = a + b * z^2  [meters, meters]",
+  "fitted_a_m": 0.0009087518168949461,
+  "fitted_b_m_per_m2": -0.0004895999276647034,
+  "sigma_at_0.5m_mm": 0.786,
+  "sigma_at_0.7m_mm": 0.669,
+  "sigma_at_0.9m_mm": 0.512,
+  "axial_scale_recommend_at_0.7m": 0.488,
+  "lateral_sigma_px_default": 0.8,
+  "edge_probability_default": 0.3,
+  "dropout_probability_default": 0.02,
+  "per_distance": [
+    {
+      "distance_m_true": 0.4,
+      "mean_measured_m": 0.39751002192497253,
+      "sigma_measured_m": 0.0008656647405587137,
+      "n_pixels": 33920,
+      "file": "dist_0.40m.npy"
+    },
+    {
+      "distance_m_true": 0.5,
+      "mean_measured_m": 0.497109979391098,
+      "sigma_measured_m": 0.0008024346316233277,
+      "n_pixels": 33920,
+      "file": "dist_0.50m.npy"
+    },
+    {
+      "distance_m_true": 0.6,
+      "mean_measured_m": 0.6023300290107727,
+      "sigma_measured_m": 0.0006789503386244178,
+      "n_pixels": 33920,
+      "file": "dist_0.60m.npy"
+    },
+    {
+      "distance_m_true": 0.7,
+      "mean_measured_m": 0.700884997844696,
+      "sigma_measured_m": 0.0005517013487406075,
+      "n_pixels": 33920,
+      "file": "dist_0.70m.npy"
+    },
+    {
+      "distance_m_true": 0.8,
+      "mean_measured_m": 0.8011850118637085,
+      "sigma_measured_m": 0.0006887484341859818,
+      "n_pixels": 33920,
+      "file": "dist_0.80m.npy"
+    }
+  ],
+  "n_bins_used": 6,
+  "bin_width_m": 0.02,
+  "citations": [
+    "Nguyen, Izadi, Lovell 2012 \u2014 Modeling Kinect Sensor Noise",
+    "Khoshelham & Elberink 2012 \u2014 Accuracy and Resolution of Kinect Depth Data",
+    "Sarbolandi, Lefloch, Kolb 2015 \u2014 Kinect Range Sensing: SL vs ToF",
+    "Foix, Alenya, Torras 2011 \u2014 Lost in Translation: A Survey of ToF"
+  ]
+}

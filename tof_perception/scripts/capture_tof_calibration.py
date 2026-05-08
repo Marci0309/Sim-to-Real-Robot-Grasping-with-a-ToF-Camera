@@ -52,10 +52,19 @@ def main():
 
     frames = []
     with dai.Pipeline(device) as pipeline:
-        tof = pipeline.create(dai.node.ToF).build(
-            dai.CameraBoardSocket.CAM_A,
-            dai.ImageFiltersPresetMode.TOF_MID_RANGE,
-        )
+        # Build a Camera + ToF graph manually (no ImageFiltersPreset) so the
+        # filter config we set actually sticks. Presets like TOF_MID_RANGE
+        # bake in temporal/spatial filtering that hides raw sensor noise.
+        tof = pipeline.create(dai.node.ToF).build(dai.CameraBoardSocket.CAM_A)
+        cfg = tof.getInitialConfig()
+        cfg.enablePhaseShuffleTemporalFilter = False
+        cfg.enableFPPNCorrection = True
+        cfg.enableOpticalCorrection = True
+        cfg.enableWiggleCorrection = True
+        cfg.enableTemperatureCorrection = False
+        cfg.enablePhaseUnwrapping = True
+        cfg.phaseUnwrappingLevel = 4
+        cfg.median = dai.MedianFilter.MEDIAN_OFF
         depth_q = tof.depth.createOutputQueue()
         pipeline.start()
 
@@ -111,6 +120,11 @@ def main():
         'capture_seconds': round(dt, 2),
         'timestamp': datetime.now().isoformat(timespec='seconds'),
         'preset': 'TOF_MID_RANGE',
+        'phase_shuffle_temporal_filter': False,
+        'median_filter': 'OFF',
+        'fppn_correction': True,
+        'optical_correction': True,
+        'wiggle_correction': True,
     }
     with open(json_path, 'w') as fh:
         json.dump(meta, fh, indent=2)

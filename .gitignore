@@ -6,3 +6,9 @@ log/
 evaluation/results/
 .vscode/
 .DS_Store
+
+# ToF capture data (large .npy stacks; regenerate from camera if needed)
+tof_perception/scripts/captures/
+tof_perception/scripts/captures_raw/
+tof_perception/scripts/captures_truly_raw/
+tof_perception/scripts/object_captures/
