@@ -1,0 +1,16 @@
+# Original literature-default parameters (Nguyen, Izadi, Lovell 2012, 3DIMPVT)
+# fitted to the Kinect V1. Kept for ablation: pass
+#   ros2 launch noise_injection noise_injector.launch.py \
+#       params_file:=$(ros2 pkg prefix noise_injection)/share/noise_injection/config/nguyen_kinect.yaml
+# to compare a Kinect-style noise model against the OAK-D measured one.
+depth_noise_injector:
+  ros__parameters:
+    axial_a:                0.0012
+    axial_b:                0.0019
+    axial_z0:               0.4
+    axial_scale:            1.0
+    lateral_sigma_px:       0.8
+    edge_grad_threshold_m:  0.05
+    edge_probability:       0.30
+    dropout_probability:    0.02
+    seed:                   42

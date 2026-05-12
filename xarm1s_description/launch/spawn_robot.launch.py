@@ -1,7 +1,7 @@
 import os
 import re
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, TimerAction, RegisterEventHandler
+from launch.actions import ExecuteProcess, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
@@ -31,69 +31,105 @@ def generate_launch_description():
     robot_desc = re.sub(r'<\?xml[^?]*\?>', '', robot_desc)
     robot_desc = re.sub(r'\s+', ' ', robot_desc).strip()
 
-    # Prepend our patched gazebo_ros2_control build to GAZEBO_PLUGIN_PATH so
-    # Gazebo loads it instead of the buggy /opt/ros/humble/lib version.
-    patched_plugin_dir = os.path.expanduser(
-        '~/thesis_ws/install/gazebo_ros2_control/lib')
-    plugin_path = patched_plugin_dir + ':' + os.environ.get('GAZEBO_PLUGIN_PATH', '')
+    # ─── Gazebo environment ────────────────────────────────────────────
+    # 1) PLUGIN PATH: previously we prepended a locally-patched
+    #    gazebo_ros2_control build at ~/thesis_ws/install/gazebo_ros2_control/lib
+    #    to work around a Humble-era race in controller activation.
+    #    As of 2026-05-11 the patched build silently fails to register the
+    #    controller_manager service, so we fall back to the upstream Humble
+    #    build (/opt/ros/humble/lib/libgazebo_ros2_control.so) which the
+    #    spawner picks up via the default plugin path.
+    plugin_path = os.environ.get('GAZEBO_PLUGIN_PATH', '')
+
+    # 2) MODEL PATH: tabletop.world has <include><uri>model://banana</uri></include>
+    #    etc. Gazebo resolves these by searching GAZEBO_MODEL_PATH for
+    #    <name>/model.sdf. Without this prepend the shell's GAZEBO_MODEL_PATH
+    #    is typically empty, the includes fail with "Unable to find uri[…]",
+    #    and the corresponding objects silently disappear from the scene.
+    models_dir = os.path.join(pkg_gazebo, 'models', 'tabletop_objects')
+    model_path = models_dir + ':' + os.environ.get('GAZEBO_MODEL_PATH', '')
+
+    # 3) MODEL DATABASE URI: disable the online gazebosim.org fetch. On
+    #    constrained networks (WSL bridged via Hyper-V; lab firewalls) the
+    #    fetch can hang for tens of seconds and starve plugin initialisation
+    #    so badly that gazebo_ros2_control never registers
+    #    /controller_manager. All models we use are local (bundled with
+    #    Gazebo 11 for ground_plane/sun, in xarm1s_gazebo for the four
+    #    objects), so we don't need the online DB.
+    gazebo_env = {
+        'GAZEBO_PLUGIN_PATH':       plugin_path,
+        'GAZEBO_MODEL_PATH':        model_path,
+        'GAZEBO_MODEL_DATABASE_URI': '',
+    }
 
     gazebo = ExecuteProcess(
         cmd=['ros2', 'launch', 'gazebo_ros', 'gazebo.launch.py',
              f'world:={world_path}'],
         output='screen',
-        additional_env={'GAZEBO_PLUGIN_PATH': plugin_path},
+        additional_env=gazebo_env,
     )
 
     rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         parameters=[{'robot_description': robot_desc, 'use_sim_time': True}],
-        output='screen'
+        output='screen',
     )
 
-    spawn = TimerAction(period=10.0, actions=[
-        Node(
-            package='gazebo_ros',
-            executable='spawn_entity.py',
-            arguments=['-topic', '/robot_description',
-                       '-entity', 'xarm1s',
-                       '-x', '0.0', '-y', '0.0', '-z', '0.76'],
-            output='screen'
-        )
-    ])
-
-    world_tf = Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        arguments=['0', '0', '0.76', '0', '0', '0', 'world', 'xarm_base_link'],
-        output='screen'
+    # The URDF has a `world` virtual link + fixed joint at z = 0.76 m, so
+    # robot_state_publisher already publishes world -> xarm_base_link.
+    # No static_transform_publisher needed; spawning at world origin lets
+    # the fixed joint place the base on the table.
+    spawn = Node(
+        package='gazebo_ros',
+        executable='spawn_entity.py',
+        arguments=['-topic', '/robot_description',
+                   '-entity', 'xarm1s',
+                   '-x', '0.0', '-y', '0.0', '-z', '0.0',
+                   '-timeout', '90'],
+        output='screen',
     )
 
-    # Spawn controllers after the robot is spawned. Order matters:
-    # joint_state_broadcaster first, then arm + gripper controllers.
-    load_jsb = TimerAction(period=14.0, actions=[
-        ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                 'joint_state_broadcaster'],
-            output='screen'
-        )
-    ])
-    load_arm = TimerAction(period=16.0, actions=[
-        ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                 'arm_controller'],
-            output='screen'
-        )
-    ])
-    load_gripper = TimerAction(period=18.0, actions=[
-        ExecuteProcess(
-            cmd=['ros2', 'control', 'load_controller', '--set-state', 'active',
-                 'gripper_controller'],
-            output='screen'
-        )
-    ])
+    # The controller_manager service appears once gazebo_ros2_control loads
+    # inside the spawned robot. The `spawner` node waits for it indefinitely
+    # (default), which is more reliable than the `ros2 control load_controller`
+    # CLI in Humble. Order: joint_state_broadcaster first; arm + gripper after.
+    spawn_jsb = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['joint_state_broadcaster',
+                   '--controller-manager', '/controller_manager'],
+        output='screen',
+    )
+    spawn_arm = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['arm_controller',
+                   '--controller-manager', '/controller_manager'],
+        output='screen',
+    )
+    spawn_gripper = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['gripper_controller',
+                   '--controller-manager', '/controller_manager'],
+        output='screen',
+    )
+
+    # Real dependency chain (no guessed timer offsets): once spawn_entity
+    # exits cleanly, kick off the joint_state_broadcaster spawner; once that
+    # exits, kick off arm + gripper concurrently. The Humble race that
+    # bricked OnProcessExit before was rooted in spawn never completing
+    # (missing GAZEBO_MODEL_PATH cascaded through to a dead /spawn_entity
+    # service); with that fixed, OnProcessExit is the right primitive.
+    after_spawn = RegisterEventHandler(
+        OnProcessExit(target_action=spawn, on_exit=[spawn_jsb])
+    )
+    after_jsb = RegisterEventHandler(
+        OnProcessExit(target_action=spawn_jsb, on_exit=[spawn_arm, spawn_gripper])
+    )
 
     return LaunchDescription([
-        gazebo, rsp, spawn, world_tf,
-        load_jsb, load_arm, load_gripper,
+        gazebo, rsp, spawn,
+        after_spawn, after_jsb,
     ])

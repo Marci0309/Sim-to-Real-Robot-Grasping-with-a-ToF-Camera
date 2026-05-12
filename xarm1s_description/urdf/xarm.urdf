@@ -28,6 +28,18 @@
         <color rgba="0.3058 0.5921 0.7294 1.0" />
     </material>
 
+    <!-- Virtual world link + fixed joint: anchors the arm in Gazebo physics
+         at z = 0.76 m (table-top mount). Without this the base is treated
+         as a free-floating body and falls off the table at sim startup;
+         the static_transform_publisher in the launch only handles TF, not
+         Gazebo physics. -->
+    <link name="world"/>
+    <joint name="world_to_xarm_base" type="fixed">
+        <parent link="world"/>
+        <child link="xarm_base_link"/>
+        <origin xyz="0 0 0.76" rpy="0 0 0"/>
+    </joint>
+
     <link name="xarm_base_link">
         <visual>
             <origin rpy="0 0 0" xyz="0.0 0.0 0.0" />
@@ -287,6 +299,8 @@
 
     <gazebo>
         <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+            <robot_param>robot_description</robot_param>
+            <robot_param_node>robot_state_publisher</robot_param_node>
             <parameters>$(find xarm1s_description)/config/controllers.yaml</parameters>
         </plugin>
     </gazebo>

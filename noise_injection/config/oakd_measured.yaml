@@ -1,0 +1,26 @@
+# Measured OAK-D SR PoE ToF noise parameters (Phase 2, 2026-05-09).
+# Source: src/tof_perception/scripts/fit_results_truly_raw/noise_params.json
+#         src/tof_perception/scripts/object_results/object_noise.json
+#
+# - Axial: sigma_z is sub-mm and approximately range-independent over
+#   0.4-0.8 m on a Lambertian planar target. We therefore set b = 0 and use
+#   the floor value a ~ 0.9 mm. Acknowledged in the thesis as a measured
+#   finding (no Nguyen-form quadratic fit is meaningful in this range).
+# - Edge / mixed pixels: dominant noise source on real objects; rate
+#   53-98% depending on silhouette curvature. Single conservative value
+#   p_edge = 0.70 used here. Threshold lowered to 2 cm (sharper than the
+#   5 cm Kinect default).
+# - Dropout: 0.0% measured on all four characterized objects.
+# - Lateral jitter: not separately measured; Nguyen 2012 perpendicular
+#   value retained.
+depth_noise_injector:
+  ros__parameters:
+    axial_a:                0.0009
+    axial_b:                0.0
+    axial_z0:               0.4
+    axial_scale:            1.0
+    lateral_sigma_px:       0.8
+    edge_grad_threshold_m:  0.02
+    edge_probability:       0.70
+    dropout_probability:    0.0
+    seed:                   42

@@ -73,16 +73,25 @@ HSV_RANGES = {
     ],
 }
 
-# RANSAC plane segmentation parameters (table removal)
-RANSAC_DIST_THRESHOLD = 0.01   # 1 cm — points within this are inliers (table)
-RANSAC_N = 3                   # min points to fit a plane
-RANSAC_ITERATIONS = 1000
-
 # Minimum number of valid 3D points required to declare an object detected
 MIN_OBJECT_POINTS = 30
 
-# Morphological kernel size for mask cleanup
+# Morphological kernel size for HSV mask cleanup (labeling only — blob
+# geometry comes from the depth-based segmentation below)
 MORPH_KERNEL_SIZE = 5
+
+# Depth-based object segmentation. We segment "object" pixels as those
+# whose depth is significantly closer to the top-down camera than the
+# table plane. This sidesteps texture-dependent biases in the HSV mask
+# (e.g. the Coca-Cola label is off-centered on the cylinder mesh, so the
+# label-only centroid lands ~85 mm from the can geometric center). HSV
+# is still used, but only to *label* each depth blob with the right
+# object name. Method follows analyze_object_noise.py.
+OBJECT_HEIGHT_MIN_M = 0.005   # 5 mm above table → counts as object
+MIN_OBJECT_AREA_PX  = 100     # smaller blobs are noise specks
+# When matching a depth blob to an HSV label we require this many
+# overlapping pixels — guards against random color noise pulling a blob.
+MIN_HSV_OVERLAP_PX  = 50
 
 
 class PoseEstimator(Node):
@@ -197,26 +206,53 @@ class PoseEstimator(Node):
                 depth, (rgb.shape[1], rgb.shape[0]),
                 interpolation=cv2.INTER_NEAREST)
 
-        # 1) RGB -> HSV (per supervisor's advice; lighting-robust)
+        # 1) RGB -> HSV (per supervisor's advice; lighting-robust). HSV is
+        #    now used only to label depth blobs with the correct object
+        #    name — the actual silhouette comes from depth segmentation.
         hsv = cv2.cvtColor(rgb, cv2.COLOR_BGR2HSV)
-
-        # 2) Per-object color masks
-        masks = {
-            label: self._color_mask(hsv, HSV_RANGES[label])
-            for label in OBJECT_LABELS
-        }
+        masks = {label: self._color_mask(hsv, HSV_RANGES[label])
+                 for label in OBJECT_LABELS}
         for label, mask in masks.items():
             self._publish_mask(mask, self.mask_pubs[label])
 
-        # 3) Compute pose per object using masked depth + camera intrinsics
+        # 2) Depth-based silhouette segmentation: anything closer to the
+        #    camera than the table plane by more than OBJECT_HEIGHT_MIN_M
+        #    is an object pixel. Table plane is estimated as the median of
+        #    valid depth values (table dominates a top-down FOV).
+        above_table = self._above_table_mask(depth)
+
+        # 3) Connected components: each object is one blob. cv2 wants u8.
+        n_lab, lab, cc_stats, _ = cv2.connectedComponentsWithStats(
+            above_table.astype(np.uint8), 8)
+
+        # 4) For each blob, find which HSV mask overlaps it most, and use
+        #    THAT as the label. This pairs the *depth-defined silhouette*
+        #    (correct geometric extent) with the *color-defined identity*
+        #    (correct object name).
         camera_frame = self.latest_rgb_header.frame_id \
             or 'overhead_camera_optical_frame'
         stamp = self.latest_rgb_header.stamp
 
-        poses = [
-            self._estimate_object_pose(masks[label], depth, label)
-            for label in OBJECT_LABELS
-        ]
+        label_to_pose = {}
+        for comp in range(1, n_lab):
+            if cc_stats[comp, cv2.CC_STAT_AREA] < MIN_OBJECT_AREA_PX:
+                continue
+            blob = (lab == comp)
+            best_label, best_overlap = None, 0
+            for lbl, m in masks.items():
+                ov = int(np.count_nonzero(blob & (m > 0)))
+                if ov > best_overlap:
+                    best_overlap, best_label = ov, lbl
+            if best_label is None or best_overlap < MIN_HSV_OVERLAP_PX:
+                continue
+            if best_label in label_to_pose:
+                continue  # already assigned to a (larger, earlier) blob
+            p = self._estimate_pose_from_blob(blob, depth, best_label)
+            if p is not None:
+                label_to_pose[best_label] = p
+
+        # Preserve OBJECT_LABELS order in the published PoseArray
+        poses = [label_to_pose.get(lbl) for lbl in OBJECT_LABELS]
 
         # 4) Transform from camera optical frame to target frame (default: 'world')
         #    via tf2 [Foote 2013]. Skip publishing if the transform is not yet
@@ -259,10 +295,24 @@ class PoseEstimator(Node):
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k)
         return mask
 
-    def _estimate_object_pose(self, mask, depth, label):
-        """Project masked pixels to 3D and compute centroid in camera frame."""
-        # Pixel coords where mask is positive AND depth is valid (>0, finite)
-        ys, xs = np.where((mask > 0) & np.isfinite(depth) & (depth > 0))
+    @staticmethod
+    def _above_table_mask(depth):
+        """Pixels significantly closer to the camera than the table plane.
+
+        Top-down camera: table is the FARTHEST visible surface, so its
+        depth dominates the histogram. Estimate the table depth as the
+        median of valid depths (table covers most of the FOV). Anything
+        OBJECT_HEIGHT_MIN_M closer is an object.
+        """
+        valid = np.isfinite(depth) & (depth > 0)
+        if not valid.any():
+            return np.zeros_like(depth, dtype=bool)
+        table_depth = float(np.median(depth[valid]))
+        return valid & (depth < table_depth - OBJECT_HEIGHT_MIN_M)
+
+    def _estimate_pose_from_blob(self, blob, depth, label):
+        """Project blob pixels to 3D and compute centroid in camera frame."""
+        ys, xs = np.where(blob & np.isfinite(depth) & (depth > 0))
 
         if len(xs) < MIN_OBJECT_POINTS:
             self.get_logger().debug(
