@@ -3,7 +3,7 @@
   <name>evaluation</name>
   <version>0.0.1</version>
   <description>Thesis package: evaluation</description>
-  <maintainer email="you@example.com">Your Name</maintainer>
+  <maintainer email="szokedencsim@gmail.com">Marcell Mor Szokedencsi</maintainer>
   <license>MIT</license>
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>rclpy</exec_depend>

@@ -1,27 +1,38 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
+  <!-- Slim 250 ml can: primitive red cylinder, 52 mm dia x 134 mm. Replaces the
+       thick 330 ml Sketchfab mesh (66 mm dia) which was too wide for the gripper
+       and carried an ~80 mm centroid mesh-bias. As a clean primitive it grasps
+       across its 52 mm diameter (< ~80 mm jaw opening) and has no mesh artefact.
+       All-red surface -> clean HSV detection (red dual-range in pose_estimator),
+       no overlap with golf_ball magenta / banana yellow / blue_box blue. -->
   <model name="coke_can">
     <link name="link">
       <inertial>
-        <mass>0.330</mass>
+        <mass>0.050</mass>
         <inertia>
-          <ixx>0.00038</ixx><iyy>0.00038</iyy><izz>0.00007</izz>
+          <ixx>0.000083</ixx><iyy>0.000083</iyy><izz>0.000017</izz>
           <ixy>0</ixy><ixz>0</ixz><iyz>0</iyz>
         </inertia>
       </inertial>
       <visual name="visual">
         <geometry>
-          <mesh>
-            <uri>model://coke_can/meshes/coke_decimated.obj</uri>
-            <scale>0.000828 0.000828 0.000828</scale>
-          </mesh>
+          <cylinder>
+            <radius>0.026</radius>
+            <length>0.134</length>
+          </cylinder>
         </geometry>
+        <material>
+          <ambient>0.5 0.0 0.0 1</ambient>
+          <diffuse>0.9 0.1 0.1 1</diffuse>
+          <specular>0.1 0.05 0.05 1</specular>
+        </material>
       </visual>
       <collision name="collision">
         <geometry>
           <cylinder>
-            <radius>0.033</radius>
-            <length>0.115</length>
+            <radius>0.026</radius>
+            <length>0.134</length>
           </cylinder>
         </geometry>
       </collision>

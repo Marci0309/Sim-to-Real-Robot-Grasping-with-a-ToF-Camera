@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>xarm1s_grasp_plugin</name>
+  <version>0.1.0</version>
+  <description>
+    Minimal Gazebo Classic 11 world plugin for the thesis sim: on a ROS 2
+    command it creates a temporary fixed joint between the gripper link and a
+    grasped object, so the object is carried RIGIDLY (no /set_entity_state
+    teleport jitter). Released on command. This is the community-standard
+    "fixed-joint attach" approach to stable grasping in Gazebo (vs unreliable
+    friction tuning). Attaches ON COMMAND (from the grasp logic), not on
+    auto-detected contact, so it does not depend on Gazebo's flaky contact
+    sensing.
+  </description>
+  <maintainer email="szokedencsim@gmail.com">Marcell Mor Szokedencsi</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>gazebo_ros</depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

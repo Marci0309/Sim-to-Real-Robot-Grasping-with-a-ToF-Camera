@@ -305,7 +305,6 @@
         </plugin>
     </gazebo>
 
-    <!-- End effector tool frame -->
     <!-- ========== OVERHEAD RGB-D CAMERA ========== -->
     <link name="overhead_camera_mount">
         <visual>
@@ -472,7 +471,7 @@
     <joint name="gripper_left_finger_joint" type="revolute">
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <axis xyz="0 1 0"/>
-        <limit effort="15" lower="-0.45" upper="0.1" velocity="2.0"/>   <!-- ← small -->
+        <limit effort="15" lower="-0.65" upper="0.1" velocity="2.0"/>   <!-- widened: ~72mm open -->
         <parent link="gripper_base_link"/>
         <child  link="gripper_left_finger_link"/>
     </joint>
@@ -506,7 +505,7 @@
         <!-- Right finger limits are the ANTI-MIRROR of the left finger
              (-0.45..+0.10) so we can drive right = -left over the full
              range without clamping. Closed: left=+0.10, right=-0.10. -->
-        <limit effort="15" lower="-0.10" upper="0.45" velocity="2.0"/>
+        <limit effort="15" lower="-0.10" upper="0.65" velocity="2.0"/>
         <parent link="gripper_base_link"/>
         <child  link="gripper_right_finger_link"/>
         <!-- Right finger is commanded directly by gripper_controller with the

@@ -1,0 +1,18 @@
+# Default parameters for the Phase 4A grasp_executor.
+# Per-object data (nominal pose, capture tolerance, mesh-bias correction) lives
+# in grasp_executor.py's OBJECTS table; this file holds the run-level scalars.
+grasp_executor:
+  ros__parameters:
+    use_sim_time: true
+    run_tag: sim_clean
+    # ground_truth = bring-up (grasp /model_states, always succeeds);
+    # perception   = experiment (grasp /detected_objects + capture test).
+    target_source: ground_truth
+    n_trials: 1
+    carry_object: true        # physically carry object via /set_entity_state (demo)
+    bias_correction: true     # sim-only mesh-bias correction (coke/banana)
+    placement_xy: [0.30, 0.0]
+    move_time: 3.0            # seconds per arm motion
+    settle_time: 0.6         # pause after each motion
+    robot_model: xarm1s
+    csv_path: "~/thesis_ws/src/evaluation/results/manip_results.csv"

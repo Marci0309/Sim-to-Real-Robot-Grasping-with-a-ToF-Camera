@@ -37,9 +37,23 @@ def generate_launch_description():
     #    to work around a Humble-era race in controller activation.
     #    As of 2026-05-11 the patched build silently fails to register the
     #    controller_manager service, so we fall back to the upstream Humble
-    #    build (/opt/ros/humble/lib/libgazebo_ros2_control.so) which the
-    #    spawner picks up via the default plugin path.
-    plugin_path = os.environ.get('GAZEBO_PLUGIN_PATH', '')
+    #    build (/opt/ros/humble/lib/libgazebo_ros2_control.so).
+    #
+    #    CORRECTION (2026-05-30): the upstream build is the BROKEN one on this
+    #    Humble — it forwards robot_description to the controller_manager as a
+    #    `--param` CLI arg, and RCL's parser rejects our URDF value ("Couldn't
+    #    parse parameter override rule: --param robot_description:=<robot ..."),
+    #    so the controller_manager never starts, controllers never activate, and
+    #    the arm hangs limp. The vendored build in src/_thirdparty does NOT have
+    #    this bug. We therefore PREPEND the vendored plugin dir so it always wins
+    #    — otherwise a shell that exports GAZEBO_PLUGIN_PATH=...:/opt/ros/humble/lib
+    #    (e.g. via ~/.bashrc) silently selects the broken upstream plugin.
+    install_root = os.path.dirname(os.path.dirname(os.path.dirname(pkg_desc)))
+    vendored_plugin_dir = os.path.join(install_root, 'gazebo_ros2_control', 'lib')
+    # our MIT fixed-joint grasp plugin (libxarm1s_link_attacher.so) lives here
+    grasp_plugin_dir = os.path.join(install_root, 'xarm1s_grasp_plugin', 'lib')
+    plugin_path = (vendored_plugin_dir + ':' + grasp_plugin_dir + ':'
+                   + os.environ.get('GAZEBO_PLUGIN_PATH', ''))
 
     # 2) MODEL PATH: tabletop.world has <include><uri>model://banana</uri></include>
     #    etc. Gazebo resolves these by searching GAZEBO_MODEL_PATH for

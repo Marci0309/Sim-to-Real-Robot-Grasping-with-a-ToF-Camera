@@ -3,7 +3,7 @@
   <name>noise_injection</name>
   <version>0.0.1</version>
   <description>Thesis package: noise_injection</description>
-  <maintainer email="you@example.com">Your Name</maintainer>
+  <maintainer email="szokedencsim@gmail.com">Marcell Mor Szokedencsi</maintainer>
   <license>MIT</license>
   <buildtool_depend>ament_python</buildtool_depend>
   <export><build_type>ament_python</build_type></export>

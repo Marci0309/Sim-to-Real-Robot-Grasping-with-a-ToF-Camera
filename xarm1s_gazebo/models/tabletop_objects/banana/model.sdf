@@ -17,9 +17,12 @@
           </mesh>
         </geometry>
       </visual>
+      <!-- Collision: a compact box matching the body (was 0.18x0.04x0.04, whose
+           long ends dipped/penetrated during the rigid carry and ejected the
+           banana on release). Smaller -> no stored force. -->
       <collision name="collision">
         <geometry>
-          <box><size>0.18 0.04 0.04</size></box>
+          <box><size>0.12 0.03 0.03</size></box>
         </geometry>
       </collision>
     </link>

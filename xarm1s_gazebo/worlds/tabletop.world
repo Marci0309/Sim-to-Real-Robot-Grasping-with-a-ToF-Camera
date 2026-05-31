@@ -12,6 +12,16 @@
       <update_rate>30.0</update_rate>
     </plugin>
 
+    <!-- Fixed-joint grasp (xarm1s_grasp_plugin): on /grasp/attach <model> forms
+         a rigid fixed joint between the gripper (xarm_2_link) and that object so
+         it is carried RIGIDLY (no teleport jitter); /grasp/detach <model>
+         releases it. -->
+    <plugin name="link_attacher" filename="libxarm1s_link_attacher.so">
+      <ros><namespace>/</namespace></ros>
+      <gripper_model>xarm1s</gripper_model>
+      <gripper_link>xarm_2_link</gripper_link>
+    </plugin>
+
     <!-- Table: top surface at z = 0.75 -->
     <model name="table">
       <static>true</static>
@@ -27,30 +37,53 @@
       </link>
     </model>
 
+    <!-- Green drop plate: the shared destination for all placed objects. Green
+         so it matches NO object's HSV range (never detected as an object). High
+         friction so dropped objects settle on it instead of rolling off. -->
+    <model name="drop_plate">
+      <static>true</static>
+      <link name="link">
+        <!-- VISUAL ONLY (no collision) + FLUSH with the table: a 2 mm disk whose
+             top sits only ~1 mm above the 0.75 m tabletop, so it reads as part of
+             the table (no raised rim for objects to clip into) and the depth
+             camera ignores it (under the 5 mm above-table object threshold, so it
+             is never segmented as a blob). Big (24 cm) for the four objects. -->
+        <pose>0.23 0.0 0.750 0 0 0</pose>
+        <visual name="visual">
+          <geometry><cylinder><radius>0.12</radius><length>0.002</length></cylinder></geometry>
+          <material>
+            <ambient>0.0 0.35 0.0 1</ambient>
+            <diffuse>0.1 0.85 0.1 1</diffuse>
+            <specular>0.05 0.1 0.05 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
     <!-- Coke can (cylinder, h=0.115m, r=0.033m): base on table → z = 0.75 + 0.115/2 -->
     <include>
       <name>coke_can</name>
-      <pose>0.25 0.15 0.783 1.5708 0 0</pose>
+      <pose>0.14 0.11 0.776 1.5708 0 0</pose>
       <uri>model://coke_can</uri>
     </include>
 
     <!-- Banana (lying flat): center ~2cm above table -->
     <include>
       <name>banana</name>
-      <pose>0.25 -0.15 0.80 0 0 0</pose>
+      <pose>0.14 -0.11 0.80 0 0 0</pose>
       <uri>model://banana</uri>
     </include>
 
     <!-- Golf ball (sphere r=0.0214m): center at z = 0.75 + 0.0214 -->
     <include>
       <name>golf_ball</name>
-      <pose>-0.25 0.15 0.80 0 0 0</pose>
+      <pose>-0.14 0.11 0.80 0 0 0</pose>
       <uri>model://golf_ball</uri>
     </include>
 
     <!-- Blue cardboard box (60x40x30mm) primitive, kept inline -->
     <model name="blue_box">
-      <pose>-0.25 -0.15 0.80 0 0 0</pose>
+      <pose>-0.14 -0.11 0.80 0 0 0</pose>
       <link name="link">
         <visual name="visual">
           <geometry><box><size>0.060 0.040 0.030</size></box></geometry>

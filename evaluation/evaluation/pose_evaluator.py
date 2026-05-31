@@ -33,7 +33,7 @@ from gazebo_msgs.msg import ModelStates
 # returns. Keep the order in sync with pose_estimator.OBJECT_LABELS.
 OBJECTS = [
     # (label, gazebo model name, half_height in metres)
-    ("coke_can",  "coke_can",  0.033),    # lying on side -> top is at body centre + radius
+    ("coke_can",  "coke_can",  0.026),    # slim 250ml can lying on side -> radius 0.026
     ("banana",    "banana",    0.020),    # box thickness 0.04
     ("golf_ball", "golf_ball", 0.0214),   # sphere radius
     ("blue_box",  "blue_box",  0.015),    # box thickness 0.030

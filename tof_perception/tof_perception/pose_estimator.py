@@ -73,6 +73,14 @@ HSV_RANGES = {
     ],
 }
 
+# Per-object overlay colors (BGR) for the annotated debug view.
+VIZ_COLORS = {
+    "coke_can":  (0, 0, 255),
+    "banana":    (0, 200, 255),
+    "golf_ball": (255, 0, 255),
+    "blue_box":  (255, 0, 0),
+}
+
 # Minimum number of valid 3D points required to declare an object detected
 MIN_OBJECT_POINTS = 30
 
@@ -161,6 +169,14 @@ class PoseEstimator(Node):
             for label in OBJECT_LABELS
         }
 
+        # On-body grasp point per object (distance-transform peak of the depth
+        # blob -> the thickest interior body point). For a curved banana this is
+        # ON the body, unlike the area centroid which sits in the concave notch.
+        self.grasp_pub = self.create_publisher(PoseArray, '/grasp_points', 10)
+        # Annotated camera view: HSV tint + depth-blob outline + centroid + grasp.
+        self.debug_pub = self.create_publisher(
+            Image, '/pose_estimator/debug_view', 5)
+
         # Process synchronized frames at 10 Hz (camera publishes at 30 Hz)
         self.timer = self.create_timer(0.1, self._process)
 
@@ -234,6 +250,8 @@ class PoseEstimator(Node):
         stamp = self.latest_rgb_header.stamp
 
         label_to_pose = {}
+        label_to_grasp = {}
+        viz = {}   # label -> (centroid_px, grasp_px) for the debug overlay
         for comp in range(1, n_lab):
             if cc_stats[comp, cv2.CC_STAT_AREA] < MIN_OBJECT_AREA_PX:
                 continue
@@ -250,6 +268,14 @@ class PoseEstimator(Node):
             p = self._estimate_pose_from_blob(blob, depth, best_label)
             if p is not None:
                 label_to_pose[best_label] = p
+                g = self._grasp_from_blob(blob, depth, masks[best_label])
+                if g is not None:
+                    label_to_grasp[best_label] = g[0]
+                    viz[best_label] = (g[2], g[1])   # (centroid_px, grasp_px)
+
+        # Annotated camera view (image-space; published every frame so it is
+        # available even before tf comes up).
+        self._publish_debug(rgb, masks, above_table, viz)
 
         # Preserve OBJECT_LABELS order in the published PoseArray
         poses = [label_to_pose.get(lbl) for lbl in OBJECT_LABELS]
@@ -280,6 +306,16 @@ class PoseEstimator(Node):
 
         if pose_array.poses:
             self.pose_pub.publish(pose_array)
+
+        # Grasp points: same tf + header, one pose per detected object.
+        grasp_array = PoseArray()
+        grasp_array.header = pose_array.header
+        for lbl in OBJECT_LABELS:
+            g = label_to_grasp.get(lbl)
+            if g is not None:
+                grasp_array.poses.append(do_transform_pose(g, tf))
+        if grasp_array.poses:
+            self.grasp_pub.publish(grasp_array)
 
     # ── Helpers ───────────────────────────────────────────────────────
     @staticmethod
@@ -344,6 +380,81 @@ class PoseEstimator(Node):
             f'{label}: ({cx3*1000:.1f}, {cy3*1000:.1f}, {cz3*1000:.1f}) mm '
             f'from {len(xs)} px')
         return pose
+
+    def _grasp_from_blob(self, blob, depth, hsv_mask):
+        """On-body grasp point for a parallel-jaw gripper.
+
+        Computed on the object's COLOURED pixels = depth blob INTERSECTED with
+        the HSV mask, so the point is on the actual visible body (not a depth
+        halo just past the edge). Then:
+          - compact blob (can / box / ball): the area centroid is on the body,
+            so grasp at the centroid (the geometric centre);
+          - curved banana: the centroid falls in the concave notch (off-body),
+            so grasp at the (smoothed) distance-transform PEAK = the most
+            interior / thickest stretch of the body, where a parallel-jaw
+            gripper has the most material to close on.
+
+        Returns (Pose in camera frame, grasp_px, centroid_px) or None.
+        """
+        valid = blob & (hsv_mask > 0) & np.isfinite(depth) & (depth > 0)
+        if int(np.count_nonzero(valid)) < MIN_OBJECT_POINTS:
+            valid = blob & np.isfinite(depth) & (depth > 0)   # fallback
+        ys, xs = np.where(valid)
+        if len(xs) < MIN_OBJECT_POINTS:
+            return None
+        dist = cv2.distanceTransform(valid.astype(np.uint8), cv2.DIST_L2, 5)
+        dmax = float(dist.max())
+        if dmax <= 0.0:
+            return None
+        cenx, ceny = float(np.mean(xs)), float(np.mean(ys))
+        ci, cj = int(round(ceny)), int(round(cenx))
+        centroid_on_body = (0 <= ci < dist.shape[0] and 0 <= cj < dist.shape[1]
+                            and dist[ci, cj] >= 0.5 * dmax)
+        if centroid_on_body:
+            gx_px, gy_px = int(round(cenx)), int(round(ceny))
+        else:
+            smooth = cv2.GaussianBlur(dist, (0, 0), 2.0)   # stabilise the peak
+            _, _, _, (px, py) = cv2.minMaxLoc(smooth)
+            gx_px, gy_px = int(px), int(py)
+        gz = float(depth[gy_px, gx_px])
+        if not np.isfinite(gz) or gz <= 0:
+            return None
+        K = self.camera_info.k
+        fx, fy, cx, cy = K[0], K[4], K[2], K[5]
+        pose = Pose()
+        pose.position.x = float((gx_px - cx) * gz / fx)
+        pose.position.y = float((gy_px - cy) * gz / fy)
+        pose.position.z = gz
+        pose.orientation.w = 1.0
+        return pose, (gx_px, gy_px), (int(cenx), int(ceny))
+
+    def _publish_debug(self, rgb, masks, above_table, viz):
+        """Annotated camera view: HSV-matched regions tinted per object, the
+        depth-blob silhouette outlined, and the centroid (dot) + grasp point (X)
+        marked. View live with: ros2 run rqt_image_view rqt_image_view
+        (select /pose_estimator/debug_view)."""
+        try:
+            tint = rgb.copy()
+            for lbl in OBJECT_LABELS:
+                tint[masks[lbl] > 0] = VIZ_COLORS[lbl]
+            dbg = cv2.addWeighted(tint, 0.35, rgb, 0.65, 0)
+            cnts, _ = cv2.findContours(above_table.astype(np.uint8),
+                                       cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            cv2.drawContours(dbg, cnts, -1, (0, 255, 0), 1)
+            for lbl, (cen_px, grasp_px) in viz.items():
+                cv2.circle(dbg, cen_px, 4, (255, 255, 255), -1)
+                cv2.drawMarker(dbg, grasp_px, (0, 0, 0),
+                               cv2.MARKER_CROSS, 16, 2)
+                cv2.putText(dbg, lbl, (cen_px[0] + 6, cen_px[1] - 6),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1,
+                            cv2.LINE_AA)
+            cv2.putText(dbg,
+                        "tint=HSV  green=depth-blob  dot=centroid  X=grasp-point",
+                        (8, dbg.shape[0] - 8), cv2.FONT_HERSHEY_SIMPLEX, 0.45,
+                        (255, 255, 255), 1, cv2.LINE_AA)
+            self.debug_pub.publish(self.bridge.cv2_to_imgmsg(dbg, encoding='bgr8'))
+        except Exception as e:
+            self.get_logger().warn(f'debug view error: {e}')
 
     def _publish_mask(self, mask, pub):
         try:
