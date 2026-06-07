@@ -11,6 +11,17 @@
     "edge_flying_pixel_rate": 0.9867
   },
   {
+    "name": "blue_box",
+    "table_distance_m_measured": 0.6836,
+    "object_body_depth_m": 0.6552,
+    "object_height_mm": 28.5,
+    "object_pixels": 1222,
+    "body_sigma_mm": 0.709,
+    "body_dropout_rate": 0.0,
+    "edge_ring_pixels": 770,
+    "edge_flying_pixel_rate": 0.9494
+  },
+  {
     "name": "coke_can",
     "table_distance_m_measured": 0.683,
     "object_body_depth_m": 0.6357,
@@ -20,6 +31,17 @@
     "body_dropout_rate": 0.0,
     "edge_ring_pixels": 1507,
     "edge_flying_pixel_rate": 0.5309
+  },
+  {
+    "name": "coke_can2",
+    "table_distance_m_measured": 0.6859,
+    "object_body_depth_m": 0.6394,
+    "object_height_mm": 46.4,
+    "object_pixels": 2525,
+    "body_sigma_mm": 0.729,
+    "body_dropout_rate": 0.0,
+    "edge_ring_pixels": 1407,
+    "edge_flying_pixel_rate": 0.6247
   },
   {
     "name": "empty_table",
