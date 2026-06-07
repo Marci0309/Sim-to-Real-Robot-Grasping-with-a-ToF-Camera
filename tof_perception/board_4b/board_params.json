@@ -1,0 +1,13 @@
+{
+  "dictionary": "DICT_5X5_100",
+  "squares_x": 7,
+  "squares_y": 5,
+  "square_length_m": 0.1,
+  "marker_length_m": 0.075,
+  "board_width_mm": 700,
+  "board_height_mm": 500,
+  "dpi": 300,
+  "page": "A1 landscape (841x594 mm)",
+  "interior_corners": 24,
+  "after_print": "Measure outer edge of square pattern. true square_length_m = measured_board_width_mm/1000/7. Update square_length_m here before running the solver."
+}

@@ -1,0 +1,17 @@
+{
+  "dictionary": "DICT_4X4_50",
+  "marker_length_m": 0.08,
+  "id_to_object": {
+    "0": "coke_can",
+    "1": "banana",
+    "2": "golf_ball",
+    "3": "blue_box"
+  },
+  "marker_to_object_offset_m": {
+    "coke_can": [-0.10, 0.0],
+    "banana": [-0.083, 0.0],
+    "golf_ball": [-0.083, 0.0],
+    "blue_box": [-0.075, 0.0]
+  },
+  "offset_note": "Vector from MARKER centre to OBJECT centre, expressed in the MARKER's own frame (x = marker right, y = marker up). Set per object once placement is fixed; the step-7 ingest rotates it by the detected marker orientation. Default [0,0] = object centred on the marker (use only if the marker stays visible)."
+}
