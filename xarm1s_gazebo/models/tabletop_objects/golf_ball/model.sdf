@@ -23,6 +23,17 @@
         <geometry>
           <sphere><radius>0.0214</radius></sphere>
         </geometry>
+        <!-- High mu + torsional friction so the ball does not roll out of the
+             jaws / off the table; soft contact for a stable grasp contact. -->
+        <surface>
+          <friction>
+            <ode><mu>1.5</mu><mu2>1.5</mu2></ode>
+            <torsional><coefficient>1.0</coefficient></torsional>
+          </friction>
+          <contact>
+            <ode><kp>1e5</kp><kd>10</kd><min_depth>0.001</min_depth><max_vel>0.1</max_vel></ode>
+          </contact>
+        </surface>
       </collision>
     </link>
   </model>

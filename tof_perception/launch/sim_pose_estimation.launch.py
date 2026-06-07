@@ -19,12 +19,17 @@ def generate_launch_description():
                     'to /overhead_depth/depth/image_noisy for Sim-noisy.',
     )
 
+    gui_arg = DeclareLaunchArgument(
+        'gui', default_value='true',
+        description='false = headless gzserver (no window); faster for sweeps')
+
     sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory('xarm1s_description'),
                 'launch', 'spawn_robot.launch.py')
-        )
+        ),
+        launch_arguments={'gui': LaunchConfiguration('gui')}.items(),
     )
 
     pose_estimator = TimerAction(period=15.0, actions=[
@@ -39,4 +44,4 @@ def generate_launch_description():
         )
     ])
 
-    return LaunchDescription([depth_topic_arg, sim, pose_estimator])
+    return LaunchDescription([depth_topic_arg, gui_arg, sim, pose_estimator])

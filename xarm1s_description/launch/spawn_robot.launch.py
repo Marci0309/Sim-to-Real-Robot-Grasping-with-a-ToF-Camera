@@ -1,8 +1,10 @@
 import os
 import re
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, RegisterEventHandler
+from launch.actions import (DeclareLaunchArgument, ExecuteProcess,
+                            RegisterEventHandler)
 from launch.event_handlers import OnProcessExit
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 
@@ -76,9 +78,11 @@ def generate_launch_description():
         'GAZEBO_MODEL_DATABASE_URI': '',
     }
 
+    # gui:=false runs gzserver headless (no gzclient window) -- used for
+    # automated/headless verification and faster data sweeps.
     gazebo = ExecuteProcess(
         cmd=['ros2', 'launch', 'gazebo_ros', 'gazebo.launch.py',
-             f'world:={world_path}'],
+             f'world:={world_path}', ['gui:=', LaunchConfiguration('gui')]],
         output='screen',
         additional_env=gazebo_env,
     )
@@ -144,6 +148,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument('gui', default_value='true',
+                              description='false = headless gzserver (no window)'),
         gazebo, rsp, spawn,
         after_spawn, after_jsb,
     ])

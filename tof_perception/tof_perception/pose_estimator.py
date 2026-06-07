@@ -2,31 +2,46 @@
 """
 Pose Estimator Node — Sim-Clean / Sim-Noisy / Real condition
 
+Estimates the 3D position of four tabletop objects (coke_can, banana,
+golf_ball, blue_box) from a fixed top-down RGB-D stream. The pipeline is
+classical/geometric (no learned pose network) on purpose, so every error is
+attributable to either calibration or depth noise — the variables this thesis
+studies.
+
 Subscribes:
-    /overhead_camera/color/image_raw   (sensor_msgs/Image)   - RGB image
-    /overhead_camera/depth/image_raw   (sensor_msgs/Image)   - Depth in meters
-    /overhead_camera/depth/camera_info (sensor_msgs/CameraInfo)
-    /overhead_camera/depth/points      (sensor_msgs/PointCloud2)
+    /overhead_rgb/image_raw            (sensor_msgs/Image)       - RGB
+    <depth_topic>                      (sensor_msgs/Image,32FC1) - depth (m);
+        ROS parameter, default /overhead_depth/depth/image_raw. Point it at the
+        noise_injection output for the Sim-Noisy condition (no code change).
+    /overhead_depth/depth/camera_info  (sensor_msgs/CameraInfo)  - intrinsics
 
 Publishes:
-    /detected_objects (geometry_msgs/PoseArray)
-        Each pose is the centroid of one detected object in the camera frame.
-        Order is fixed: [red_cube, blue_cylinder]
+    /detected_objects (geometry_msgs/PoseArray, frame = target_frame param)
+        One pose per detected object; fixed order [coke_can, banana,
+        golf_ball, blue_box]. Orientation = identity (translation-only study).
+    /grasp_points (geometry_msgs/PoseArray) - on-body grasp point per object
+    /pose_estimator/mask_<label>, /pose_estimator/debug_view - visualisation
 
-Pipeline (classical geometric, justified for sim-to-real noise study):
-    1. RGB -> HSV color space (lighting-robust object detection, per supervisor advice)
-    2. HSV thresholding to produce per-object binary masks
-    3. Morphological cleanup (open + close) to remove noise
-    4. RANSAC plane segmentation on point cloud to remove the table
-       (Open3D segment_plane) - standard tabletop pattern in robotics literature
-    5. For each object mask, extract the corresponding 3D points
-    6. Compute centroid as pose estimate (translation only, rotation = identity)
-    7. Publish as PoseArray in the camera optical frame
+Pipeline (depth defines the silhouette, colour defines the identity):
+    1. RGB -> HSV per-object masks (HSV is lighting-robust, per supervisor
+       advice). NOTE: HSV is used ONLY to *label* blobs, never for geometry.
+    2. Depth-based table removal: in a top-down view the table is the dominant
+       (farthest) surface, so its plane is estimated as the MEDIAN of valid
+       depths, and pixels >= OBJECT_HEIGHT_MIN_M (5 mm) closer are "object".
+       This deliberately replaces RANSAC plane fitting: the support plane is
+       fronto-parallel and known by construction, so a median threshold removes
+       it deterministically and dependency-free (cf. RANSAC + clustering
+       tabletop pipelines, e.g. Rusu et al. 2008).
+    3. Connected components on the depth mask -> one blob per object.
+    4. Label each blob by the HSV mask it overlaps most (depth = geometry,
+       colour = identity).
+    5. Back-project blob pixels to 3D (pinhole intrinsics); take the per-axis
+       MEDIAN as a robust centroid (rejects flying-pixel / dropout outliers).
+    6. Pose = centroid position; orientation = identity.
+    7. Transform camera-optical -> target_frame via tf2 (Foote 2013); publish.
 
-References:
-    - Open3D RANSAC plane segmentation: open3d.org/docs/latest/tutorial/Basic/pointcloud.html
-    - Team ACRV OCRTOC entry, ICRA 2021: arxiv.org/abs/2104.07188
-    - RANSAC for Robotic Applications survey: PMC9824669
+Ground-truth alignment (estimated visible-top vs. model body-centre) is applied
+in the evaluator, following Hodan et al., "BOP", ECCV 2018.
 
 Author: Marcell Mor Szokedencsi (s5173191), University of Groningen
 Supervisor: Dr. Hamidreza Kasaei
@@ -48,9 +63,11 @@ from rclpy.duration import Duration
 
 
 # ──────────────────────────────────────────────────────────────────────
-# HSV thresholds for the simulation cube (red) and cylinder (blue).
-# Tune these by viewing the live mask topic and adjusting if objects
-# are added/changed. Hue range is 0-179 in OpenCV, S/V are 0-255.
+# HSV thresholds for the four tabletop objects (coke_can, banana,
+# golf_ball, blue_box). Used ONLY to label each depth blob with the right
+# object name — the silhouette geometry comes from depth segmentation below.
+# Tune via the live /pose_estimator/mask_<label> topic. Hue is 0-179 in
+# OpenCV, S/V are 0-255.
 # ──────────────────────────────────────────────────────────────────────
 # Order of OBJECT_LABELS sets the order of poses in /detected_objects.
 OBJECT_LABELS = ["coke_can", "banana", "golf_ball", "blue_box"]

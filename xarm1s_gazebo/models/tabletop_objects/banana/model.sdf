@@ -10,12 +10,30 @@
         </inertia>
       </inertial>
       <visual name="visual">
+        <!-- Re-center the visual so its footprint centroid lands on the link
+             origin (= the ground-truth pose perception is scored against). The
+             banana mesh is off-center, so the depth-segmentation centroid sat
+             ~27 mm (body frame) from the origin; that offset ROTATES with yaw, so
+             a fixed world-frame bias could not fix it (banana was 0% at all noise
+             levels). This link-frame pose = -C_mean (the measured body-frame
+             offset) cancels it at every yaw. Collision/inertial stay at the origin
+             (the shift moves the visual body toward the origin-centered box). -->
+        <pose>0.0099 0.0254 0 0 0 0</pose>
         <geometry>
           <mesh>
-            <uri>model://banana/meshes/banana_decimated.obj</uri>
+            <uri>model://banana/meshes/banana_solid.obj</uri>
             <scale>0.02655 0.02655 0.02655</scale>
           </mesh>
         </geometry>
+        <!-- Solid yellow OVERRIDE of the realistic texture. The HSV labeler
+             needs a uniform colour to tag the banana's depth blob (same pattern
+             as coke=red / golf=magenta / blue_box=blue). Renders to HSV hue ~23,
+             inside the banana range (hue 20-35) in pose_estimator.py. -->
+        <material>
+          <ambient>0.5 0.4 0.0 1</ambient>
+          <diffuse>0.9 0.7 0.05 1</diffuse>
+          <specular>0.05 0.05 0.05 1</specular>
+        </material>
       </visual>
       <!-- Collision: a compact box matching the body (was 0.18x0.04x0.04, whose
            long ends dipped/penetrated during the rigid carry and ejected the
@@ -24,6 +42,14 @@
         <geometry>
           <box><size>0.12 0.03 0.03</size></box>
         </geometry>
+        <surface>
+          <friction>
+            <ode><mu>1.5</mu><mu2>1.5</mu2></ode>
+          </friction>
+          <contact>
+            <ode><kp>1e5</kp><kd>10</kd><min_depth>0.001</min_depth><max_vel>0.1</max_vel></ode>
+          </contact>
+        </surface>
       </collision>
     </link>
   </model>
