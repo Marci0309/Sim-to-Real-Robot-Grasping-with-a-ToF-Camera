@@ -30,6 +30,13 @@ def generate_launch_description():
         DeclareLaunchArgument("n_trials", default_value="1"),
         DeclareLaunchArgument("carry_object", default_value="true"),
         DeclareLaunchArgument("bias_correction", default_value="true"),
+        DeclareLaunchArgument("execute_motion", default_value="true",
+                              description="false = sample perception + analytic "
+                                          "capture only (fast sweep, no arm motion)"),
+        DeclareLaunchArgument("vary_placement", default_value="false",
+                              description="true = success-rate sweep: teleport each "
+                                          "object to n_trials varied reachable poses"),
+        DeclareLaunchArgument("placement_seed", default_value="0"),
     ]
 
     node = Node(
@@ -47,6 +54,12 @@ def generate_launch_description():
                                            value_type=bool),
             "bias_correction": ParameterValue(
                 LaunchConfiguration("bias_correction"), value_type=bool),
+            "execute_motion": ParameterValue(
+                LaunchConfiguration("execute_motion"), value_type=bool),
+            "vary_placement": ParameterValue(
+                LaunchConfiguration("vary_placement"), value_type=bool),
+            "placement_seed": ParameterValue(
+                LaunchConfiguration("placement_seed"), value_type=int),
         }],
     )
 

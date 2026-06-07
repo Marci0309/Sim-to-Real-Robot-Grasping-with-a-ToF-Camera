@@ -14,16 +14,19 @@ existing ``arm_controller`` / ``gripper_controller``. Two target sources:
   the object's true XY (the gripper jaws straddle the object). This is the
   perception -> manipulation coupling the thesis Sub-Question 3 asks about.
 
-Grasp realisation is a fixed-joint attach (proposal Sec 4.4 asks only for a
-"stable and repeatable predefined grasp"), not Gazebo friction contact -- this
-isolates the perception signal from Gazebo Classic's unreliable parallel-jaw
-contact solver. On gripper-close the object is carried rigidly by the
-``xarm1s_link_attacher`` world plugin (a zero-range revolute joint between the
-gripper link and the object, created on ``/grasp/attach`` and removed on
-``/grasp/detach``); on release it is settled at the drop point via the
-gazebo_ros_state ``/set_entity_state`` service. Success and placement error are
-computed analytically from the commanded-vs-true offset at grasp time and do not
-depend on the physical carry.
+Grasp realisation is a CONTACT-TRIGGERED fixed-joint attach (proposal Sec 4.4
+asks only for a "stable and repeatable predefined grasp"). The effort-controlled
+fingers close ONTO the object and the ``xarm1s_link_attacher`` world plugin
+welds it to the gripper only once it detects two-finger contact (following
+GazeboGraspFix and Gazebo's own physics::Gripper) -- so the gripper must
+genuinely grip the object before it is carried (no grip-on-air, no
+teleport-attach). The weld is a kinematic grasp constraint standing in for
+Gazebo Classic's unreliable sustained parallel-jaw friction on small/round
+objects; it is armed via ``/grasp/attach`` and removed on ``/grasp/detach``, and
+on release the object drops the last cm onto the plate and settles under
+friction. Success and placement error are computed ANALYTICALLY from the
+commanded-vs-true offset at grasp time and do NOT depend on the physical carry,
+so the fast statistical sweep (``execute_motion:=false``) is unaffected.
 
 Results are appended to ``manip_results.csv`` (tagged by ``run_tag`` like the
 pose-evaluator's ``run.csv``) and summarised on Ctrl-C.
@@ -61,8 +64,9 @@ from xarm1s_manipulation import arm_ik as ik
 #   grasp_z      : fingertip target = 0.755 (~5 mm above the table). The ~59 mm
 #                  prongs hang BELOW the gripper body, so driving the fingertip
 #                  near the table makes the prongs descend AROUND the object body
-#                  (it looks enveloped) rather than hovering above it. The hold is
-#                  a soft-attach, so the depth only has to look right.
+#                  (it looks enveloped) rather than hovering above it -- so the
+#                  closing jaws straddle the object and make the two-finger
+#                  contact the grasp plugin needs in order to weld.
 #   capture_tol  : max horizontal commanded-vs-true error for a successful grasp
 #                  (~ gripper jaw half-opening minus the object half-width)
 #   bias         : sim-only mesh-bias correction (mean detected-truth offset
@@ -80,26 +84,34 @@ OBJECTS: Dict[str, dict] = {
     #   grasp_width  : object width across the minor axis = how far to close the
     #                  jaws (Phase A uses this known value; Phase B will get it
     #                  from the perceived blob's minor-axis extent).
-    #   place        : this object's own spot ON the green drop_plate (centre
+    #   place        : this object's own spot on the green drop_plate (centre
     #                  PLATE_XY). Four distinct spots in a diamond so the objects
-    #                  CLUSTER on the plate instead of piling onto one point
-    #                  (stacking them at one spot makes the soft-attach teleport a
-    #                  new object INTO the previous one -> physics explosion). All
+    #                  cluster on the plate rather than piling onto one point. All
     #                  four spots verified reachable + same-branch (no flip).
     #   half_h       : object half-height -> resting z on the table (0.75+half_h)
     #                  when pinned on the plate after placement.
+    #   place_settle : True = set the object down on its spot at release instead
+    #                  of a free drop. Used for the 52mm coke: it fills the 55mm
+    #                  jaw so the fingertip pads cannot fully clear it, and a free
+    #                  release lets the residual pad contact spring it off; the
+    #                  pickup is still a real contact-triggered grasp.
     "coke_can":  dict(model="coke_can",  nominal=(0.14, 0.11), grasp_z=0.755,
-                      capture_tol=0.020, bias=(0.0, 0.0), minor_axis=(1.0, 0.0),
-                      grasp_width=0.052, place=(0.27, 0.07), half_h=0.026),
+                      capture_tol=0.0015, bias=(0.0, 0.0), minor_axis=(1.0, 0.0),
+                      grasp_width=0.052, place=(0.27, 0.07), half_h=0.026,
+                      place_settle=True),  # (55-52)/2, at the jaw size limit
     "banana":    dict(model="banana",    nominal=(0.14, -0.11), grasp_z=0.755,
-                      capture_tol=0.022, bias=(-0.011, -0.016), minor_axis=(0.0, 1.0),
-                      grasp_width=0.035, place=(0.27, -0.07), half_h=0.015),
+                      # bias now 0: the banana VISUAL was re-centered onto its link
+                      # origin in model.sdf (the footprint-centroid offset is removed
+                      # at the source), so the old fixed per-pose bias hack -- which
+                      # only worked at one yaw -- is obsolete.
+                      capture_tol=0.010, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
+                      grasp_width=0.035, place=(0.27, -0.07), half_h=0.015),  # (55-35)/2
     "golf_ball": dict(model="golf_ball", nominal=(-0.14, 0.11), grasp_z=0.755,
-                      capture_tol=0.020, bias=(0.0, 0.0), minor_axis=None,
-                      grasp_width=0.043, place=(0.19, 0.05), half_h=0.0214),
+                      capture_tol=0.006, bias=(0.0, 0.0), minor_axis=None,
+                      grasp_width=0.043, place=(0.19, 0.05), half_h=0.0214),  # (55-43)/2
     "blue_box":  dict(model="blue_box",  nominal=(-0.14, -0.11), grasp_z=0.755,
-                      capture_tol=0.022, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
-                      grasp_width=0.040, place=(0.19, -0.05), half_h=0.015),
+                      capture_tol=0.0075, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
+                      grasp_width=0.040, place=(0.19, -0.05), half_h=0.015),  # (55-40)/2
 }
 
 GRIPPER_JOINTS = ["gripper_left_finger_joint", "gripper_right_finger_joint"]
@@ -109,13 +121,14 @@ GRIPPER_JOINTS = ["gripper_left_finger_joint", "gripper_right_finger_joint"]
 # meshes). This lets us close to a TARGET WIDTH (grip-to-contact) instead of
 # slamming to the crossed "closed" pose.
 GRIPPER_PX, GRIPPER_PZ = 0.0015, 0.059
-JAW_OPEN = -0.65               # left-finger angle for ~72 mm (widened URDF limit)
-GRIP_SQUEEZE = 0.010           # (legacy) close this much tighter than object width
-# The object is held by the fixed joint (xarm1s_grasp_plugin), not the fingers,
-# so the close is purely visual: a uniform GENTLE framing that closes the jaws
-# noticeably from open WITHOUT jamming into any object's collision (jamming a
-# rigidly-joined object makes the solver whip it out -- the banana symptom).
-GRIP_FRAME = 0.042
+JAW_OPEN = -0.459              # left-finger angle for 55 mm open (matches the real gripper)
+# The fingers are EFFORT-controlled, so the jaws are commanded to close
+# GRIP_SQUEEZE below the object's width: the finger then presses the object with
+# a bounded, soft force and stalls at the surface (it cannot penetrate + fling
+# it, the position-control failure). The grasp plugin sees the resulting
+# two-finger contact and welds; the squeeze keeps that contact alive during the
+# carry. 6 mm keeps the position error -- and hence the effort -- gentle.
+GRIP_SQUEEZE = 0.006           # close this much tighter than the object width
 GRIP_OPEN = [JAW_OPEN, -JAW_OPEN]
 
 
@@ -139,14 +152,23 @@ PRE_DIST = 0.08      # pre-grasp / retreat offset back along the approach axis
 # tabletop.world). Each object goes to its own spot on the plate (OBJECTS
 # 'place') so they cluster rather than pile. Release height PLACE_Z is above the
 # table: the object must NOT be carried down onto the table while still rigidly
-# joined (the table-contact force then fights the joint and explodes -- verified
-# at 0.755). It is released here and set onto the spot by place_at_rest.
+# joined (the table-contact force then fights the joint and explodes). It is
+# released here; the coke is set down on its spot by place_at_rest.
 PLATE_XY = (0.23, 0.0)
 PLACE_Z = 0.79
 
 
 def _duration(t: float) -> Duration:
     return Duration(sec=int(t), nanosec=int((t - int(t)) * 1e9))
+
+
+def _rpy_to_quat(r: float, p: float, y: float):
+    """(roll, pitch, yaw) -> (x, y, z, w) quaternion (matches reset_objects.py)."""
+    cy, sy = math.cos(y * 0.5), math.sin(y * 0.5)
+    cp, sp = math.cos(p * 0.5), math.sin(p * 0.5)
+    cr, sr = math.cos(r * 0.5), math.sin(r * 0.5)
+    return (sr * cp * cy - cr * sp * sy, cr * sp * cy + sr * cp * sy,
+            cr * cp * sy - sr * sp * cy, cr * cp * cy + sr * sp * sy)
 
 
 class GraspExecutor(Node):
@@ -172,6 +194,21 @@ class GraspExecutor(Node):
             "placement_xy", [0.0, 0.22]).value)
         self.move_time = float(self.declare_parameter("move_time", 3.0).value)
         self.settle_time = float(self.declare_parameter("settle_time", 0.6).value)
+        # settle_place: after the gentle release, also pin the object exactly on
+        # its plate spot with a zero-velocity set_entity_state (the old
+        # behaviour). Default False = let it drop the last cm and settle under
+        # friction (a real release, no teleport).
+        self.settle_place = bool(
+            self.declare_parameter("settle_place", False).value)
+        # vary_placement: success-rate sweep mode. For each object (one on the
+        # table at a time), teleport it to n_trials DIFFERENT reachable poses
+        # (varied position + orientation) and record the analytic capture test at
+        # each -> full reachable-workspace coverage (supervisor's request). No arm
+        # motion. placement_seed makes the sampled poses reproducible.
+        self.vary_placement = bool(
+            self.declare_parameter("vary_placement", False).value)
+        self.placement_seed = int(
+            self.declare_parameter("placement_seed", 0).value)
         self.robot_model = self.declare_parameter("robot_model", "xarm1s").value
         self.csv_path = os.path.expanduser(self.declare_parameter(
             "csv_path",
@@ -192,8 +229,8 @@ class GraspExecutor(Node):
 
         self.grip_pub = self.create_publisher(
             JointTrajectory, "/gripper_controller/joint_trajectory", 10)
-        # fixed-joint grasp: command the xarm1s_grasp_plugin to rigidly attach /
-        # release the object (smooth carry, no teleport jitter).
+        # contact-triggered grasp: /grasp/attach ARMS the xarm1s_grasp_plugin to
+        # weld the object once both fingers contact it; /grasp/detach releases.
         self.attach_pub = self.create_publisher(String, "/grasp/attach", 10)
         self.detach_pub = self.create_publisher(String, "/grasp/detach", 10)
         self.arm_action = ActionClient(
@@ -332,6 +369,23 @@ class GraspExecutor(Node):
                 best, best_d = xy, d
         return best
 
+    def _perceived_nearest(self, truth_xy: np.ndarray) -> Optional[np.ndarray]:
+        """Detection nearest the CURRENT true XY -- used by vary_placement, where
+        the object is teleported around so the fixed-nominal matcher no longer
+        applies. Only the test object is on the table, so this is effectively the
+        lone detection; a gross miss (>15 cm) returns None (counts as a failure)."""
+        with self._lock:
+            det = self.latest_detections
+        if det is None or not det.poses:
+            return None
+        best, best_d = None, 0.15
+        for ps in det.poses:
+            xy = np.array([ps.position.x, ps.position.y])
+            dd = float(np.linalg.norm(xy - truth_xy))
+            if dd < best_d:
+                best, best_d = xy, dd
+        return best
+
     def grasp_point_xy(self, label: str) -> Optional[np.ndarray]:
         """On-body grasp point (from /grasp_points) nearest the object's nominal
         XY. This is where the gripper should actually close -- for the curved
@@ -349,9 +403,9 @@ class GraspExecutor(Node):
                 best, best_d = xy, d
         return best
 
-    # ----- fixed-joint grasp (xarm1s_grasp_plugin) -----
+    # ----- contact-triggered grasp (xarm1s_grasp_plugin) -----
     def _grasp_attach(self, model: str) -> None:
-        """Command the plugin to form a rigid fixed joint gripper<->object."""
+        """Arm the plugin to weld <model> to the gripper on two-finger contact."""
         msg = String(data=model)
         self.attach_pub.publish(msg)
         time.sleep(0.05)
@@ -375,7 +429,7 @@ class GraspExecutor(Node):
         pose.position.x = float(d["place"][0])
         pose.position.y = float(d["place"][1])
         pose.position.z = 0.75 + d["half_h"]
-        if label == "coke_can":          # lying cylinder: roll 90 deg (axis = Y)
+        if label == "coke_can":          # lying cylinder (low profile): roll 90 deg
             pose.orientation.x = 0.70710678
             pose.orientation.w = 0.70710678
         else:
@@ -388,6 +442,98 @@ class GraspExecutor(Node):
                 req.state.reference_frame = "world"
                 self.set_state.call_async(req)
             time.sleep(0.05)
+
+    # ----- varied-placement success-rate sweep -----
+    def _set_object_pose(self, model: str, x, y, z, roll, pitch, yaw) -> None:
+        """Teleport an object to a pose at zero velocity via set_entity_state."""
+        qx, qy, qz, qw = _rpy_to_quat(roll, pitch, yaw)
+        pose = Pose()
+        pose.position.x, pose.position.y, pose.position.z = (
+            float(x), float(y), float(z))
+        pose.orientation.x, pose.orientation.y = float(qx), float(qy)
+        pose.orientation.z, pose.orientation.w = float(qz), float(qw)
+        for _ in range(4):
+            if self.set_state.service_is_ready():
+                req = SetEntityState.Request()
+                req.state.name = model
+                req.state.pose = pose
+                req.state.reference_frame = "world"
+                self.set_state.call_async(req)
+            time.sleep(0.05)
+
+    def _park_others(self, keep_label: str) -> None:
+        """Teleport every object except keep_label far off the table (out of the
+        overhead-camera FOV) so only the test object is detected."""
+        i = 0
+        for lbl, d in OBJECTS.items():
+            if lbl == keep_label:
+                continue
+            self._set_object_pose(d["model"], 2.0 + 0.3 * i, 2.0,
+                                  0.75 + d["half_h"], 0.0, 0.0, 0.0)
+            i += 1
+        time.sleep(0.3)
+
+    def _reachable_placements(self, label: str, n: int, seed: int):
+        """n reproducible (x,y,z,roll,pitch,yaw) poses inside the REACHABLE
+        workspace (r in [0.12, 0.30], each validated by ik.feasible_approach),
+        with varied yaw. r>=0.12 also keeps objects clear of the home arm column
+        at the centre. coke lies on its side (roll=pi/2); others upright/flat."""
+        d = OBJECTS[label]
+        z = 0.75 + d["half_h"]
+        roll = math.pi / 2.0 if label == "coke_can" else 0.0
+        rng = np.random.RandomState(
+            (seed * 131 + sum(ord(c) for c in label)) % (2 ** 31 - 1))
+        out, tries = [], 0
+        while len(out) < n and tries < 5000:
+            tries += 1
+            r = rng.uniform(0.12, 0.30)
+            th = rng.uniform(-math.pi, math.pi)
+            x, y = r * math.cos(th), r * math.sin(th)
+            if ik.feasible_approach((x, y, d["grasp_z"]), min_clearance=0.75) is None:
+                continue                       # unreachable -> skip this sample
+            yaw = rng.uniform(-math.pi, math.pi)
+            out.append((x, y, z, roll, 0.0, yaw))
+        return out
+
+    def run_vary_placement(self) -> None:
+        """Success-rate sweep: each object, one at a time, teleported to n_trials
+        DIFFERENT reachable poses; record the analytic capture test at each (raw
+        error when bias_correction is off). Gives full reachable-workspace coverage."""
+        if not self.set_state.wait_for_service(timeout_sec=10.0):
+            self.get_logger().error(
+                "set_entity_state unavailable; cannot vary placements")
+            return
+        for label in self.objects:
+            if label not in OBJECTS:
+                self.get_logger().warn(f"unknown object '{label}', skipping")
+                continue
+            d = OBJECTS[label]
+            model = d["model"]
+            self._park_others(label)
+            samples = self._reachable_placements(
+                label, self.n_trials, self.placement_seed)
+            self.get_logger().info(
+                f"--- {label}: {len(samples)} reachable placements "
+                f"(tag={self.run_tag}, bias_corr={self.bias_correction}) ---")
+            for trial, pose in enumerate(samples):
+                self._set_object_pose(model, *pose)
+                time.sleep(0.7)               # settle at the new pose
+                time.sleep(0.3)               # let a fresh /detected_objects arrive
+                truth = self.truth_xyz(model)
+                if truth is None:
+                    continue
+                xy = self._perceived_nearest(truth[:2])
+                if xy is not None and self.bias_correction:
+                    xy = xy - np.array(d["bias"])
+                if xy is None:                  # gross perception miss -> failure
+                    captured, place_err, grasp = False, None, None
+                else:
+                    capture_err = float(np.linalg.norm(xy - truth[:2]))
+                    captured = capture_err <= d["capture_tol"]
+                    place_err = capture_err if captured else None
+                    grasp = [float(xy[0]), float(xy[1]), d["grasp_z"]]
+                rec = self._record(label, trial, xy, grasp, truth, captured, place_err)
+                self._append_record(rec)
 
     # ----- geometry -----
     @staticmethod
@@ -482,26 +628,35 @@ class GraspExecutor(Node):
                 self.set_gripper(GRIP_OPEN)       # open the jaws first
                 # smooth approach: flow HOME -> (through pre) -> grasp in one move
                 self.move_through([HOME_CFG, cfg_pre, cfg_grasp])
-                # Close to a grip level (jaws stop near the object's width, not
-                # fully shut). Gazebo Classic parallel-jaw contact is too
-                # unreliable to hold these objects (verified: the fingers close
-                # through them), so the HOLD is a soft-attach gated on the
-                # geometric capture test -- a real miss -> no attach -> left behind.
-                self.set_gripper(grip_positions(GRIP_FRAME))
+                # Close the EFFORT-controlled jaws ONTO the object (GRIP_SQUEEZE
+                # below its width): the fingers press it with a bounded soft
+                # force and stall at the surface.
+                self.set_gripper(
+                    grip_positions(max(0.006, d["grasp_width"] - GRIP_SQUEEZE)))
+                # Arm the contact-triggered grasp AFTER the jaws have closed, so
+                # the plugin welds on the genuine CLOSED-jaw two-finger contact
+                # (arming during the open approach could weld on a transient
+                # open-jaw touch -> grip-on-air). A perception MISS (not captured)
+                # is never armed -> the object is genuinely left behind.
                 if captured:
-                    self._grasp_attach(model)    # rigid fixed joint -> no jitter
-                    time.sleep(0.4)              # let the plugin form it before lifting
-                # smooth lift + carry + place as one motion (stops only at place)
+                    self._grasp_attach(model)
+                    time.sleep(1.2)             # let the plugin confirm contact +
+                                                # weld (and cover the fallback) before lifting
+                # smooth lift + carry as one motion (stops at the place pose)
                 self.move_through([cfg_grasp, cfg_pre, cfg_place_pre, cfg_place])
-                # Open the (cosmetic) jaws so the fingers are clear before the
-                # object is set down -- otherwise place_at_rest teleports it into
-                # the still-closed finger collisions and it is flung off the table
-                # (verified). The object stays put meanwhile (held by the joint,
-                # not the fingers).
+                # Open the jaws (effort relaxes -> fingers lift off the object)
+                # and release the joint: the object drops the last cm onto its
+                # plate spot and settles under the surface friction -- a real
+                # release, not a teleport. A size-limit object (place_settle, the
+                # 52mm coke) is additionally set down on its spot, because the
+                # pads cannot clear it and a free release springs it off the table.
+                use_settle = self.settle_place or d.get("place_settle", False)
                 self.set_gripper(GRIP_OPEN)
                 if captured:
-                    self._grasp_detach(model)    # release the grasp joint
-                    self._place_at_rest(label)   # set it down on its plate spot
+                    self._grasp_detach(model)
+                    if use_settle:
+                        self._place_at_rest(label)
+                    time.sleep(self.settle_time)  # let it settle before retreat
                 self.move_through([cfg_place, cfg_place_pre, HOME_CFG])  # retreat
 
         # placement error: rigid carry preserves the grasp-time offset, so the
@@ -521,7 +676,12 @@ class GraspExecutor(Node):
             "true_x": round(float(truth[0]), 5),
             "true_y": round(float(truth[1]), 5),
             "captured": int(bool(captured)),
-            "pick_success": int(bool(captured)),
+            # grasp_feasible: the PERCEPTION/geometry success -- the perceived
+            # centre is within the jaw's capture tolerance (the jaws would
+            # straddle the object). It is NOT a physical-grasp check (Gazebo
+            # Classic can't reliably simulate parallel-jaw contact), so it is
+            # named honestly rather than "pick_success".
+            "grasp_feasible": int(bool(captured)),
             "place_err_mm": "" if place_err is None else round(place_err * 1000, 2),
         }
         self.records.append(rec)
@@ -544,6 +704,9 @@ class GraspExecutor(Node):
         return False
 
     def run(self) -> None:
+        if self.vary_placement:               # success-rate sweep over the workspace
+            self.run_vary_placement()
+            return
         if self.execute_motion and not self.arm_action.wait_for_server(
                 timeout_sec=20.0):
             self.get_logger().error(
@@ -585,18 +748,18 @@ class GraspExecutor(Node):
             if not recs:
                 continue
             n = len(recs)
-            k = sum(r["pick_success"] for r in recs)
+            k = sum(r["grasp_feasible"] for r in recs)
             p = k / n
             ci = 1.96 * math.sqrt(max(p * (1 - p), 0) / n) if n else 0.0
             errs = [r["place_err_mm"] for r in recs
-                    if r["pick_success"] and r["place_err_mm"] != ""]
+                    if r["grasp_feasible"] and r["place_err_mm"] != ""]
             if errs:
                 m = sum(errs) / len(errs)
                 sem = (np.std(errs, ddof=1) / math.sqrt(len(errs))) if len(errs) > 1 else 0.0
                 place = f"place_err {m:5.1f} +-{1.96*sem:4.1f} mm"
             else:
                 place = "place_err   --"
-            print(f"  {label:<10} pick {k:3d}/{n:<3d} = {p*100:5.1f}% "
+            print(f"  {label:<10} grasp-feasible {k:3d}/{n:<3d} = {p*100:5.1f}% "
                   f"+-{ci*100:4.1f}   {place}")
         print(f"\nwrote {len(self.records)} rows -> {self.csv_path}")
         print("=" * 60)

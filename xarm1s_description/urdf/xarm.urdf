@@ -285,13 +285,18 @@
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
+        <!-- Gripper fingers use the EFFORT command interface (arm stays on
+             position). The effort-PID gripper_controller then drives the
+             fingers with bounded torque, so closing onto an object stalls at a
+             gentle squeeze instead of commanding the finger INTO the object
+             (the position-control penetration that flung the can/banana). -->
         <joint name="gripper_left_finger_joint">
-            <command_interface name="position"/>
+            <command_interface name="effort"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
         <joint name="gripper_right_finger_joint">
-            <command_interface name="position"/>
+            <command_interface name="effort"/>
             <state_interface name="position"/>
             <state_interface name="velocity"/>
         </joint>
@@ -462,6 +467,21 @@
                       scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
+        <!-- Fingertip contact pad: a primitive box flush with the inner face of
+             the finger (mesh inner edge x=-1.5mm, tip z~+58.7mm) and extending
+             OUTWARD. ODE's trimesh collider does not reliably generate contacts
+             for the thin finger STL, so this primitive is what the grasp plugin
+             actually senses on. Flush + outward = adds NO inward protrusion, so
+             it does not change the jaw clearance (critical for the 52mm coke in
+             the 55mm gripper). -->
+        <collision name="left_fingertip_pad">
+            <!-- SHORT pad at the very tip (z 50-59mm): a taller pad's upper edge
+                 swings inward on the finger's pivot arc when the jaws are open
+                 and prematurely touches the object; keeping it at the tip means
+                 it only reaches the object once the jaws close. -->
+            <origin rpy="0 0 0" xyz="-0.0058 0.003 0.0545"/>
+            <geometry><box size="0.0085 0.012 0.009"/></geometry>
+        </collision>
         <inertial>
             <mass value="0.02"/>
             <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
@@ -471,7 +491,13 @@
     <joint name="gripper_left_finger_joint" type="revolute">
         <origin rpy="0 0 0" xyz="0 0 0"/>
         <axis xyz="0 1 0"/>
-        <limit effort="15" lower="-0.65" upper="0.1" velocity="2.0"/>   <!-- widened: ~72mm open -->
+        <!-- effort=5 Nm caps the closing force (small Hiwonder servo); under the
+             effort-PID gripper_controller this is a SOFT close that stalls on
+             the object instead of penetrating + flinging it (position control
+             did the latter). damping/friction keep the finger from oscillating
+             when it presses the object. -->
+        <limit effort="5" lower="-0.46" upper="0.1" velocity="2.0"/>   <!-- ~55mm open: matches the real gripper -->
+        <dynamics damping="0.1" friction="0.05"/>
         <parent link="gripper_base_link"/>
         <child  link="gripper_left_finger_link"/>
     </joint>
@@ -493,6 +519,13 @@
                       scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
+        <!-- Fingertip contact pad (mirror of the left): primitive box flush with
+             the right finger inner face (x=+1.5mm) extending outward. See the
+             left finger for the rationale. -->
+        <collision name="right_fingertip_pad">
+            <origin rpy="0 0 0" xyz="0.0058 0.004 0.0545"/>
+            <geometry><box size="0.0085 0.012 0.009"/></geometry>
+        </collision>
         <inertial>
             <mass value="0.02"/>
             <inertia ixx="0.0001" iyy="0.0001" izz="0.0001" ixy="0" ixz="0" iyz="0"/>
@@ -505,13 +538,37 @@
         <!-- Right finger limits are the ANTI-MIRROR of the left finger
              (-0.45..+0.10) so we can drive right = -left over the full
              range without clamping. Closed: left=+0.10, right=-0.10. -->
-        <limit effort="15" lower="-0.10" upper="0.65" velocity="2.0"/>
+        <limit effort="5" lower="-0.10" upper="0.46" velocity="2.0"/>
+        <dynamics damping="0.1" friction="0.05"/>
         <parent link="gripper_base_link"/>
         <child  link="gripper_right_finger_link"/>
         <!-- Right finger is commanded directly by gripper_controller with the
              opposite sign — Humble's gazebo_ros2_control does not reliably
              honor URDF <mimic> for actuated joints, so we drive both. -->
     </joint>
+
+    <!-- Fingertip contact surface: high friction so the jaws bite the object
+         (Gazebo uses the MIN mu of the two surfaces, so the objects are made
+         grippy too), and a SOFT contact (kp=1e5, kd=10 vs the 1e12 default that
+         is far too stiff for light parts) with bounded penetration so the close
+         registers a stable contact for the grasp plugin instead of bouncing /
+         exploding. This pairs with the effort-controlled fingers. -->
+    <gazebo reference="gripper_left_finger_link">
+        <mu1>1.5</mu1>
+        <mu2>1.5</mu2>
+        <kp>1e5</kp>
+        <kd>10.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+    </gazebo>
+    <gazebo reference="gripper_right_finger_link">
+        <mu1>1.5</mu1>
+        <mu2>1.5</mu2>
+        <kp>1e5</kp>
+        <kd>10.0</kd>
+        <minDepth>0.001</minDepth>
+        <maxVel>0.1</maxVel>
+    </gazebo>
 
     <!-- Tool tip / grasp frame for MoveIt / IK -->
     <link name="gripper_tip_link"/>

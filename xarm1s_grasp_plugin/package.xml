@@ -3,14 +3,15 @@
   <name>xarm1s_grasp_plugin</name>
   <version>0.1.0</version>
   <description>
-    Minimal Gazebo Classic 11 world plugin for the thesis sim: on a ROS 2
-    command it creates a temporary fixed joint between the gripper link and a
-    grasped object, so the object is carried RIGIDLY (no /set_entity_state
-    teleport jitter). Released on command. This is the community-standard
-    "fixed-joint attach" approach to stable grasping in Gazebo (vs unreliable
-    friction tuning). Attaches ON COMMAND (from the grasp logic), not on
-    auto-detected contact, so it does not depend on Gazebo's flaky contact
-    sensing.
+    Gazebo Classic 11 world plugin for the thesis sim: a CONTACT-TRIGGERED
+    fixed-joint grasp. On /grasp/attach it arms an object, then welds it to the
+    gripper only once both fingers are detected in sustained contact with it
+    (so the gripper must genuinely close on the object first -- no grip-on-air,
+    no teleport-attach); the object is then carried RIGIDLY (no
+    /set_entity_state jitter). Released on /grasp/detach. This follows the
+    GazeboGraspFix design (Buehler) and Gazebo's own physics::Gripper, which use
+    the same zero-range-joint weld as a kinematic grasp constraint standing in
+    for Gazebo's unreliable parallel-jaw friction on small/round objects.
   </description>
   <maintainer email="szokedencsim@gmail.com">Marcell Mor Szokedencsi</maintainer>
   <license>MIT</license>

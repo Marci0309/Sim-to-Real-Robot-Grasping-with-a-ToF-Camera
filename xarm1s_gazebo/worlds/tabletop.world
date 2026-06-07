@@ -4,6 +4,31 @@
     <include><uri>model://ground_plane</uri></include>
     <include><uri>model://sun</uri></include>
 
+    <!-- Grasp-friendly ODE physics (Gazebo defaults explode light parts on
+         contact). contact_max_correcting_vel caps the penetration-correction
+         velocity (default 100 m/s) so a momentarily-penetrating object is
+         eased apart instead of flung across the room (this is what ejected the
+         52mm coke at release); more solver iters + a thin surface layer make
+         the parallel-jaw contact stable. (JenniferBuehler gazebo-pkgs grasp
+         physics profile.) -->
+    <physics name="grasp_ode" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_update_rate>1000</real_time_update_rate>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>150</iters>
+          <sor>1.3</sor>
+        </solver>
+        <constraints>
+          <cfm>0.0</cfm>
+          <erp>0.2</erp>
+          <contact_max_correcting_vel>1.0</contact_max_correcting_vel>
+          <contact_surface_layer>0.001</contact_surface_layer>
+        </constraints>
+      </ode>
+    </physics>
+
     <!-- gazebo_ros_state: publishes /model_states (gazebo_msgs/ModelStates)
          with the world-frame pose of every spawned model. Required by the
          evaluation node to obtain ground-truth object positions. -->
@@ -12,14 +37,21 @@
       <update_rate>30.0</update_rate>
     </plugin>
 
-    <!-- Fixed-joint grasp (xarm1s_grasp_plugin): on /grasp/attach <model> forms
-         a rigid fixed joint between the gripper (xarm_2_link) and that object so
-         it is carried RIGIDLY (no teleport jitter); /grasp/detach <model>
-         releases it. -->
+    <!-- Contact-triggered grasp (xarm1s_grasp_plugin): /grasp/attach MODEL
+         ARMS the object; the plugin welds it rigidly to the gripper
+         (xarm_2_link) only once BOTH fingers are in sustained contact with it
+         (grip_time), so the gripper must genuinely close on the object first
+         (no grip-on-air, no teleport). fallback_timeout welds anyway after a
+         timeout if no contact is detected (demo robustness; set 0 to require
+         real contact). /grasp/detach MODEL releases it. -->
     <plugin name="link_attacher" filename="libxarm1s_link_attacher.so">
       <ros><namespace>/</namespace></ros>
       <gripper_model>xarm1s</gripper_model>
       <gripper_link>xarm_2_link</gripper_link>
+      <left_finger_link>gripper_left_finger_link</left_finger_link>
+      <right_finger_link>gripper_right_finger_link</right_finger_link>
+      <grip_time>0.05</grip_time>
+      <fallback_timeout>1.0</fallback_timeout>
     </plugin>
 
     <!-- Table: top surface at z = 0.75 -->
@@ -38,16 +70,13 @@
     </model>
 
     <!-- Green drop plate: the shared destination for all placed objects. Green
-         so it matches NO object's HSV range (never detected as an object). High
-         friction so dropped objects settle on it instead of rolling off. -->
+         so it matches NO object's HSV range (never detected as an object).
+         VISUAL ONLY + FLUSH with the table (2 mm disk ~1 mm proud) so the depth
+         camera ignores it (under the 5 mm above-table object threshold) and
+         there is no rim for objects to clip into. -->
     <model name="drop_plate">
       <static>true</static>
       <link name="link">
-        <!-- VISUAL ONLY (no collision) + FLUSH with the table: a 2 mm disk whose
-             top sits only ~1 mm above the 0.75 m tabletop, so it reads as part of
-             the table (no raised rim for objects to clip into) and the depth
-             camera ignores it (under the 5 mm above-table object threshold, so it
-             is never segmented as a blob). Big (24 cm) for the four objects. -->
         <pose>0.23 0.0 0.750 0 0 0</pose>
         <visual name="visual">
           <geometry><cylinder><radius>0.12</radius><length>0.002</length></cylinder></geometry>
@@ -95,6 +124,14 @@
         </visual>
         <collision name="collision">
           <geometry><box><size>0.060 0.040 0.030</size></box></geometry>
+          <surface>
+            <friction>
+              <ode><mu>1.5</mu><mu2>1.5</mu2></ode>
+            </friction>
+            <contact>
+              <ode><kp>1e5</kp><kd>10</kd><min_depth>0.001</min_depth><max_vel>0.1</max_vel></ode>
+            </contact>
+          </surface>
         </collision>
         <inertial>
           <mass>0.05</mass>
