@@ -1,0 +1,30 @@
+{
+  "R_arm_from_table": [
+    [
+      0.0938270803663766,
+      -0.995588508867957,
+      0.0
+    ],
+    [
+      0.9955885088679568,
+      0.09382708036637677,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "t_arm_from_table": [
+    0.16908891174412047,
+    -0.4258770264853909,
+    0.0
+  ],
+  "scale": 0.7770464428327454,
+  "residual_mm": 7.94,
+  "n": 5,
+  "n_dropped": 1,
+  "method": "touch points -> 2D similarity (Umeyama scale+R+t) w/ outlier rejection",
+  "note": "arm = scale * R_arm_from_table @ [table_x, table_y, 0] + t_arm_from_table; scale absorbs the real-arm FK reach-scale error (URDF links != real links)"
+}

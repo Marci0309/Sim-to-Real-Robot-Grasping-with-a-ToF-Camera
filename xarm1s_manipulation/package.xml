@@ -6,7 +6,9 @@
   <description>
     Closed-loop pick-and-place for the xArm 1S sim (Phase 4A): analytical 5-DoF
     IK, perception-driven slanted grasp, soft-attach capture model, and
-    pick-success / placement-error logging.
+    pick-success / placement-error logging. Phase 4C adds a ROS-free real-arm
+    control bridge (grasp_common / servo_calib / real_arm_driver / scripts) that
+    drives the physical Hiwonder xArm 1S over USB-HID.
   </description>
   <maintainer email="szokedencsim@gmail.com">Marcell Mor Szokedencsi</maintainer>
   <license>MIT</license>
@@ -20,6 +22,10 @@
   <exec_depend>control_msgs</exec_depend>
   <exec_depend>builtin_interfaces</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
+  <!-- Phase 4C real-arm path runs on a WINDOWS host with plain CPython and needs
+       `pip install xarm hidapi` (USB-HID xArm 1S). These are NOT rosdep keys and
+       are intentionally not exec_depends: the real bridge does not run under ROS.
+       The sim (Phase 4A) has no such dependency. -->
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

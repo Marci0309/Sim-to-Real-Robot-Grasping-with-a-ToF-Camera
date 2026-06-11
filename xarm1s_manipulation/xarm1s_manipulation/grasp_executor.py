@@ -80,82 +80,22 @@ from xarm1s_manipulation import arm_ik as ik
 #                  symmetric (sphere), any roll. coke lies with its axis along
 #                  world Y (pose roll=pi/2) so jaws close across X; banana long
 #                  axis ~X and blue_box narrow side ~Y so both close across Y.
-OBJECTS: Dict[str, dict] = {
-    #   grasp_width  : object width across the minor axis = how far to close the
-    #                  jaws (Phase A uses this known value; Phase B will get it
-    #                  from the perceived blob's minor-axis extent).
-    #   place        : this object's own spot on the green drop_plate (centre
-    #                  PLATE_XY). Four distinct spots in a diamond so the objects
-    #                  cluster on the plate rather than piling onto one point. All
-    #                  four spots verified reachable + same-branch (no flip).
-    #   half_h       : object half-height -> resting z on the table (0.75+half_h)
-    #                  when pinned on the plate after placement.
-    #   place_settle : True = set the object down on its spot at release instead
-    #                  of a free drop. Used for the 52mm coke: it fills the 55mm
-    #                  jaw so the fingertip pads cannot fully clear it, and a free
-    #                  release lets the residual pad contact spring it off; the
-    #                  pickup is still a real contact-triggered grasp.
-    "coke_can":  dict(model="coke_can",  nominal=(0.14, 0.11), grasp_z=0.755,
-                      capture_tol=0.0015, bias=(0.0, 0.0), minor_axis=(1.0, 0.0),
-                      grasp_width=0.052, place=(0.27, 0.07), half_h=0.026,
-                      place_settle=True),  # (55-52)/2, at the jaw size limit
-    "banana":    dict(model="banana",    nominal=(0.14, -0.11), grasp_z=0.755,
-                      # bias now 0: the banana VISUAL was re-centered onto its link
-                      # origin in model.sdf (the footprint-centroid offset is removed
-                      # at the source), so the old fixed per-pose bias hack -- which
-                      # only worked at one yaw -- is obsolete.
-                      capture_tol=0.010, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
-                      grasp_width=0.035, place=(0.27, -0.07), half_h=0.015),  # (55-35)/2
-    "golf_ball": dict(model="golf_ball", nominal=(-0.14, 0.11), grasp_z=0.755,
-                      capture_tol=0.006, bias=(0.0, 0.0), minor_axis=None,
-                      grasp_width=0.043, place=(0.19, 0.05), half_h=0.0214),  # (55-43)/2
-    "blue_box":  dict(model="blue_box",  nominal=(-0.14, -0.11), grasp_z=0.755,
-                      capture_tol=0.0075, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
-                      grasp_width=0.040, place=(0.19, -0.05), half_h=0.015),  # (55-40)/2
-}
+# Per-object grasp data is the single source of truth in grasp_common (ROS-free,
+# shared with the Phase-4C real-arm executor). See grasp_common.py for the full
+# per-object rationale of each field.
+from xarm1s_manipulation.grasp_common import OBJECTS
 
-GRIPPER_JOINTS = ["gripper_left_finger_joint", "gripper_right_finger_joint"]
-# Jaw kinematics (fingers rotate about Y): the gap between the finger inner-face
-# fingertips is gap(lj) = 2*PX*cos(lj) - 2*PZ*sin(lj) = R*cos(lj + delta), where
-# (PX, PZ) is the inner-face fingertip in the gripper frame (measured from the
-# meshes). This lets us close to a TARGET WIDTH (grip-to-contact) instead of
-# slamming to the crossed "closed" pose.
-GRIPPER_PX, GRIPPER_PZ = 0.0015, 0.059
-JAW_OPEN = -0.459              # left-finger angle for 55 mm open (matches the real gripper)
-# The fingers are EFFORT-controlled, so the jaws are commanded to close
-# GRIP_SQUEEZE below the object's width: the finger then presses the object with
-# a bounded, soft force and stalls at the surface (it cannot penetrate + fling
-# it, the position-control failure). The grasp plugin sees the resulting
-# two-finger contact and welds; the squeeze keeps that contact alive during the
-# carry. 6 mm keeps the position error -- and hence the effort -- gentle.
-GRIP_SQUEEZE = 0.006           # close this much tighter than the object width
-GRIP_OPEN = [JAW_OPEN, -JAW_OPEN]
+# Gripper jaw model + grip helpers are single-sourced in grasp_common.
+from xarm1s_manipulation.grasp_common import (   # noqa: E402
+    GRIPPER_JOINTS, GRIPPER_PX, GRIPPER_PZ, JAW_OPEN, GRIP_SQUEEZE, GRIP_OPEN,
+    _finger_angle_for_width, grip_positions,
+)
 
 
-def _finger_angle_for_width(width: float) -> float:
-    """Left-finger joint angle whose jaw gap equals `width` m (right = -this)."""
-    R = 2.0 * math.hypot(GRIPPER_PX, GRIPPER_PZ)
-    delta = math.atan2(GRIPPER_PZ, GRIPPER_PX)
-    return -delta + math.acos(max(-1.0, min(1.0, width / R)))
-
-
-def grip_positions(width: float) -> List[float]:
-    """Gripper [left, right] joint positions that close to a jaw gap of `width`."""
-    lj = _finger_angle_for_width(width)
-    return [lj, -lj]
-
-
-HOME_CFG = {n: 0.0 for n in ik.ARM_JOINT_ORDER}   # arm straight up, clear
-
-PRE_DIST = 0.08      # pre-grasp / retreat offset back along the approach axis
-# Objects are placed on the green drop_plate (centre PLATE_XY; see
-# tabletop.world). Each object goes to its own spot on the plate (OBJECTS
-# 'place') so they cluster rather than pile. Release height PLACE_Z is above the
-# table: the object must NOT be carried down onto the table while still rigidly
-# joined (the table-contact force then fights the joint and explodes). It is
-# released here; the coke is set down on its spot by place_at_rest.
-PLATE_XY = (0.23, 0.0)
-PLACE_Z = 0.79
+# Home pose, approach offset, and plate-placement constants -> grasp_common.
+from xarm1s_manipulation.grasp_common import (   # noqa: E402
+    HOME_CFG, PRE_DIST, PLATE_XY, PLACE_Z,
+)
 
 
 def _duration(t: float) -> Duration:

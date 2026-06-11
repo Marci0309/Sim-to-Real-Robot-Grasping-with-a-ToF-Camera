@@ -63,6 +63,49 @@ MATCH_TOL_M = 0.04              # blob <-> truth nearest-neighbour match radius.
                                # the former and rejects the latter -> an unsegmented
                                # object becomes an honest no-detection, not a fake error.
 
+# Reachable-table ROI (table-frame metres, x0,x1,y0,y1,z_min,z_max). A pixel is dropped
+# BEFORE blob segmentation if its table-frame XY is outside [x0,x1]x[y0,y1] OR its TRUE
+# height above the ChArUco table plane is outside [z_min,z_max]. The z-band uses the
+# extrinsic (not the crude median-depth threshold), so it is robust to camera tilt:
+#  - z_min (~8 mm) drops the flat/tilted TABLE that the median test falsely flags as
+#    "above" when the camera isn't perfectly perpendicular;
+#  - z_max (~0.12 m) drops the tall arm (z~0.3 m at home), base, cables, edge noise.
+# Short objects (~0.02-0.05 m) sit inside the band. None = no ROI (Phase-4B default);
+# the Phase-4C perception + live viewer pass ROI_TABLE_XY.
+ROI_TABLE_XY = (0.05, 0.47, -0.05, 0.55, 0.008, 0.12)
+# The arm base is a fixed structure (>z_min) sitting just inside the ROI near the
+# robot; exclude a disc around its table-frame position so it never forms a blob.
+# (Anything this close to the base is below the arm's minimum reach anyway.) Set to
+# None to disable. Update if the arm/extrinsic is re-solved.
+ARM_BASE_TABLE_XY = (0.525, 0.268)
+ARM_BASE_EXCLUDE_R = 0.10
+
+
+def roi_filter_above(above, depth_m, K_d, R_tc, t_tc, roi):
+    """Zero 'above'-mask pixels whose table-frame XY is outside roi=(x0,x1,y0,y1).
+    No-op if roi is None. Keeps segmentation identical across the grasp + the viewer."""
+    if roi is None:
+        return above
+    ys, xs = np.where(above)
+    if len(xs) == 0:
+        return above
+    z = depth_m[ys, xs].astype(np.float64)
+    X = (xs - K_d["cx"]) * z / K_d["fx"]
+    Y = (ys - K_d["cy"]) * z / K_d["fy"]
+    p = (np.asarray(R_tc) @ np.stack([X, Y, z], 1).T).T + np.asarray(t_tc)
+    keep = ((p[:, 0] >= roi[0]) & (p[:, 0] <= roi[1]) &
+            (p[:, 1] >= roi[2]) & (p[:, 1] <= roi[3]))
+    if len(roi) > 4 and roi[4] is not None:        # height FLOOR -> drops the flat/tilted table
+        keep &= (p[:, 2] >= roi[4])
+    if len(roi) > 5 and roi[5] is not None:        # height CEILING -> drops the tall arm
+        keep &= (p[:, 2] <= roi[5])
+    if ARM_BASE_TABLE_XY is not None and ARM_BASE_EXCLUDE_R:   # drop the fixed arm base
+        keep &= (np.hypot(p[:, 0] - ARM_BASE_TABLE_XY[0],
+                          p[:, 1] - ARM_BASE_TABLE_XY[1]) > ARM_BASE_EXCLUDE_R)
+    out = np.zeros_like(above)
+    out[ys[keep], xs[keep]] = True
+    return out
+
 
 def get_dictionary(name):
     code = getattr(cv2.aruco, name)
@@ -116,14 +159,16 @@ def rgb_intrinsics(calib, socket, W, H):
     return K, dist
 
 
-def perceived_blobs_table(depth_m, K_d, R_tc, t_tc):
+def perceived_blobs_table(depth_m, K_d, R_tc, t_tc, roi=None):
     """Sim-style depth segmentation -> list of object-blob centroids in the
-    table frame. Returns [(x,y,z), ...]."""
+    table frame. Returns [(x,y,z), ...]. ``roi`` (table-frame x0,x1,y0,y1) drops
+    out-of-region pixels before segmentation (None = no ROI, the 4B default)."""
     valid = np.isfinite(depth_m) & (depth_m > 0)
     if not valid.any():
         return []
     table_depth = float(np.median(depth_m[valid]))
     above = valid & (depth_m < table_depth - OBJECT_HEIGHT_MIN_M)
+    above = roi_filter_above(above, depth_m, K_d, R_tc, t_tc, roi)
     n_lab, lab, stats, _ = cv2.connectedComponentsWithStats(
         above.astype(np.uint8), 8)
     fx, fy, cx, cy = K_d["fx"], K_d["fy"], K_d["cx"], K_d["cy"]

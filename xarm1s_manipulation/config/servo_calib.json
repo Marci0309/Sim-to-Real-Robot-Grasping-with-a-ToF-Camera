@@ -1,0 +1,13 @@
+{
+  "calibrated": true,
+  "gripper_calibrated": true,
+  "note": "Calibrated LIVE 2026-06-07. Arm: zero = hand-posed HOME read; dir = direction probes; slope = nominal 229.18 units/rad (250 deg/1000 units, confirmed from getPosition degrees); limits from arm_ik.LIMITS with 15-unit margin. VALIDATED by ruler check: commanded reach predicted fingertip 24.6 cm above table -> measured 24 cm, smooth motion. Gripper measured: open 388@55mm, closed 828@0mm (higher unit = more closed).",
+  "arm": {
+    "xarm_2_joint": {"servo": 2, "zero_unit": 445, "units_per_rad": 229.18, "dir": 1,  "min_unit": 0,   "max_unit": 804},
+    "xarm_3_joint": {"servo": 3, "zero_unit": 505, "units_per_rad": 229.18, "dir": 1,  "min_unit": 121, "max_unit": 918},
+    "xarm_4_joint": {"servo": 4, "zero_unit": 499, "units_per_rad": 229.18, "dir": -1, "min_unit": 76,  "max_unit": 922},
+    "xarm_5_joint": {"servo": 5, "zero_unit": 460, "units_per_rad": 229.18, "dir": 1,  "min_unit": 110, "max_unit": 873},
+    "xarm_6_joint": {"servo": 6, "zero_unit": 504, "units_per_rad": 229.18, "dir": 1,  "min_unit": 121, "max_unit": 901}
+  },
+  "gripper": {"servo": 1, "open_unit": 388, "open_width_m": 0.055, "closed_unit": 828, "closed_width_m": 0.0, "min_unit": 388, "max_unit": 828}
+}
