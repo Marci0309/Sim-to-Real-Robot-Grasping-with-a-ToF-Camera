@@ -1,0 +1,247 @@
+% =====================================================================
+%  Results 5.5 + Discussion  --  paste-ready IEEE (IEEEtran) LaTeX
+%  Thesis: "Investigating the Sim-to-Real Gap in RGB-D Based Tabletop
+%  Pose Estimation and Manipulation"  --  M. Szokedencsi (s5173191), RUG
+%
+%  Numbers are the FINAL Phase-4C run (60 trials), from
+%    evaluation/results/real_manip_4c_formal.csv  (generated 2026-06-18)
+%    evaluation/results/phase4c_real_table.{csv,txt}
+%
+%  ----  THINGS YOU MAY NEED TO ADJUST IN OVERLEAF  ----
+%   * Figure file path: figures/phase4c_real_vs_pred.png
+%   * Cross-reference labels for earlier material are written as \ref{...}
+%     placeholders; rename to match your document:
+%        sec:results-noise      (5.1 noise characterisation, SQ1 / Phase 2)
+%        sec:results-injection  (5.2 injection, Delta<0.1mm)
+%        sec:results-ablation   (5.3 axial-scale ablation, ~x10 threshold)
+%        sec:results-simmanip   (5.4 sim manipulation, Phase 4A)
+%        sec:results-realpose   (5.5a real perception gap, Phase 4B)
+%        sec:methods-servo       (closed-loop visual servo, Methods/Appendix)
+%   * The closed-loop visual servo is presented as BASELINE/Methods. If, in
+%     Methods, you cite the dense-correction-field idea (REPLAB, arXiv:1905.07447)
+%     add a bib entry for it -- it is NOT yet in references.bib.
+%   * If Methods/Discussion calls the median "outlier-robust", consider adding
+%     Huber, *Robust Statistics* (1981) to references.bib (50% breakdown point).
+%   * REQUIRED PACKAGES (the RUG AI template already loads most): graphicx,
+%     booktabs (\toprule/\midrule/\bottomrule). Cite keys used here all exist in
+%     references.bib: jakobi1995noise, bohg2014grasp, nguyen2012modeling.
+% =====================================================================
+
+
+\subsection{Real Manipulation on the Physical Arm (SQ3, real)}
+\label{sec:results-realmanip}
+
+Sub-question SQ3 is finally evaluated on the physical Hiwonder xArm~1S.
+Whereas Phase~4A measured an \emph{analytic} grasp feasibility in simulation
+(Section~\ref{sec:results-simmanip}) and Phase~4B measured the real
+\emph{perception} gap (Section~\ref{sec:results-realpose}), Phase~4C closes the
+chain end-to-end: the overhead OAK-D perceives a single tabletop object, the
+perceived table-frame position is transformed into the arm base frame, and the
+arm executes a predefined parallel-jaw grasp. Success is the \emph{physical}
+outcome---a lift-and-hold of at least three seconds, scored by the
+operator---rather than a geometric proxy. We report each object's lift rate
+$k/N$ with a Wilson $95\%$ score interval, which stays honest at the
+$0\%$/$100\%$ boundaries (unlike the Wald interval used for the simulated
+rates). This manipulation pipeline is the proposal's authorised \emph{baseline},
+not the contribution; the engineering needed to make a ${\sim}200$-euro
+hobby arm grasp reliably (the closed-loop visual servo of
+Section~\ref{sec:methods-servo}) is described as method, and only its
+\emph{outcome} is reported here.
+
+\paragraph{Protocol.}
+Each of the four objects was presented at five distinct tabletop positions
+within the arm's near workspace ($r \le 0.20$\,m from the base, where the
+top-down approach tilt stays near $88^\circ$), each repeated three times, for
+$4 \times 5 \times 3 = 60$ trials. Because the real arm over-reaches its
+kinematic model by ${\sim}27\%$ (an unidentifiable, position-dependent
+calibration error; see Section~\ref{sec:methods-servo}), a static open-loop aim
+is accurate to only ${\sim}8$--$14$\,mm and the reliable grasp zone collapses to
+a ${\sim}4$\,cm patch. A closed-loop visual nudge removes this: an ArUco marker
+on the gripper is observed by the same overhead camera as the object, and the
+inverse-kinematics target is corrected by $K\!\cdot\!(\mathbf{p}_{\text{obj}}
+-\mathbf{p}_{\text{gripper}})$ ($K\!\approx\!0.6$) until the in-frame error falls
+below $3$\,mm. As both points are measured through the same camera in the same
+frame, the kinematic error cancels as common-mode bias and grasp accuracy
+becomes camera-bound---${\sim}1$--$3$\,mm across all four objects in the near
+zone---independent of the broken model.
+
+\begin{table*}[t]
+\centering
+\caption{Phase-4C real lift-and-hold success on the physical xArm~1S (60
+trials), beside the Phase-4A analytic feasibility ceiling and the Phase-4B
+pose-error-versus-tolerance predictor. Intervals are Wilson $95\%$ score
+intervals. The jaw capture tolerance is $(55-w)/2$\,mm for object width $w$.}
+\label{tab:phase4c}
+\footnotesize
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{lccccccc}
+\toprule
+Object & $N$ & lift $k$ & rate (\%) & $95\%$ CI & sim-feas.\ (\%)\,[4A]
+       & pose err (mm)\,[4B] & jaw tol (mm) \\
+\midrule
+blue\_box  & 15 & 11 & \textbf{73} & $[48,\,89]$ & 100 & 7.4  & 7.5 \\
+banana     & 15 & 10 & \textbf{67} & $[42,\,85]$ & 65  & 12.1 & 10.0 \\
+coke\_can  & 15 & 10 & \textbf{67} & $[42,\,85]$ & 0   & 9.4  & 1.5 \\
+golf\_ball & 15 & 3  & \textbf{20} & $[7,\,45]$  & 65  & 4.8  & 6.0 \\
+\midrule
+\textbf{overall} & 60 & 34 & \textbf{57} & $[44,\,68]$ & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\paragraph{Results.}
+Table~\ref{tab:phase4c} reports the outcome. Blue box reached $11/15$
+($73\%$), banana and coke can both $10/15$ ($67\%$), and golf ball $3/15$
+($20\%$), for an overall $34/60 = 57\%$. The most informative aspect is what
+these rates do \emph{not} follow: neither the Phase-4A analytic feasibility
+ceiling nor the Phase-4B pose-error-versus-tolerance predictor orders them
+correctly, and the real outcome diverges from both in \emph{both} directions
+(Fig.~\ref{fig:phase4c}). Once the closed loop has driven the aiming error to
+the camera floor (${\sim}1$--$3$\,mm, observed for every object in the near
+zone), the residual variance is dominated by \emph{grip mechanics}---the
+interaction of object shape with the parallel-jaw closing force and
+compliance---not by perception or aiming.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/phase4c_real_vs_pred.png}
+\caption{Phase-4C real manipulation. \emph{Left:} real lift-success (blue, with
+Wilson $95\%$ intervals) against the Phase-4A analytic feasibility ceiling
+(grey). Coke can has no feasibility bar ($0\%$) yet grasps $67\%$ of the time;
+golf ball has a $65\%$ ceiling yet only $20\%$ real success---the rates diverge
+from the ceiling in both directions. \emph{Right:} the Phase-4B real planar
+pose error against each object's jaw capture tolerance; this aiming-feasibility
+predictor likewise fails to order the real rates, because success is set by grip
+mechanics rather than aim.}
+\label{fig:phase4c}
+\end{figure}
+
+Coke can is the clearest example. Its analytic feasibility is $0\%$ and its
+pose-error predictor reads ``${\sim}0\%$''---a $52$\,mm body in a $55$\,mm jaw
+leaves only a $1.5$\,mm rigid centring tolerance---yet it grasped $67\%$ of the
+time, so the real arm \emph{out-performs} the simulator. Two effects the
+analytic metric ignores account for this: the closed loop centres the gripper to
+${\sim}1$\,mm, and the firm commanded close (to $30$\,mm, well past the can body)
+stalls against the slightly compliant can with enough force to secure it---one
+trial note records the jaws ``pushing the object together until it had a good
+grasp''. A rigid point-tolerance model is therefore pessimistic for a forceful
+grasp on a compliant object. Golf ball is the opposite. Its pose-error predictor
+was the most favourable of the four ($4.8 < 6.0$\,mm tolerance, ``likely''), yet
+it achieved only $20\%$. Aiming was not the obstacle---at two near placements
+the loop converged below $2$\,mm---but a smooth sphere makes point contact and
+rolls out of flat parallel jaws. The closed loop fixes the \emph{aim} that was
+golf's open-loop wall; it cannot supply a form- or force-closure that flat jaws
+do not afford a sphere. Banana ($67\%$) likewise exceeds its planar-RMSE
+predictor: the elongated body is forgiving along its length, and even trials in
+which the gripper marker was briefly lost (open-loop landings at $26$--$43$\,mm
+measured error) still caught the $12$\,cm fruit; its near-zone failures are grip
+slips at near-perfect aim rather than misses. Blue box ($73\%$) is the only
+object the predictor ``called'', and even there the agreement looks coincidental
+in light of the other three: within the validated working zone ($r \le 0.20$\,m)
+blue box grasped $9/9 = 100\%$, and every failure occurred at the far edge
+($r \ge 0.22$\,m), where the gripper-marker mount loses tracking gain.
+
+\paragraph{Caveats.}
+Three caveats bound these numbers. First, $N=15$ per object yields wide Wilson
+intervals (e.g.\ $[42,85]\%$ for the $67\%$ objects); the rates are coarse, not
+precise. Second, the trials are confined to the near workspace; beyond
+$r \approx 0.20$\,m the visual-servo gain collapses because the marker is mounted
+high and behind the jaws---a documented, separable mount limitation, fixable by
+remounting the marker low over the jaw gap, and unrelated to perception or noise.
+Third, success is operator-scored. None of these interact with the depth-noise
+question, which is the actual subject of this thesis.
+
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{The Negative Result and Why It Is Valid}
+\label{sec:disc-negative}
+The central finding of this work is a negative one: for a depth-segmented
+median-centroid pose estimator, injecting \emph{measured} ToF noise into
+simulation does not change pose accuracy (Section~\ref{sec:results-injection};
+$\Delta < 0.1$\,mm in planar RMSE relative to clean simulation) and does not
+change grasp feasibility (Section~\ref{sec:results-simmanip}). This directly
+contradicts the proposal's hypothesis that realistic noise injection would
+\emph{reduce} the sim-to-real gap. The null is not an artefact of a broken
+pipeline: the same injector, with its axial term scaled up, \emph{does}
+eventually degrade pose accuracy (a robustness threshold near $\times 10$,
+$\sigma \approx 9$\,mm) and then collapse grasping (near $\times 20$), so the
+mechanism is intact---realistic noise simply sits an order of magnitude below
+the estimator's noise floor. The reason is structural. Phase~2 showed that the
+real OAK-D is quiet in the bulk (sub-millimetre body $\sigma$) and noisy almost
+entirely at object \emph{edges}, where $53$--$99\%$ of border pixels are
+flying/mixed pixels (Section~\ref{sec:results-noise}). A per-axis median centroid
+has a $50\%$ breakdown point and discards exactly that outlier-dominated edge
+population, so the noise that dominates the real sensor is, by construction,
+invisible to the estimator. Modelling it with higher fidelity cannot move a
+metric it never touches.
+
+\subsection{Where the Sim-to-Real Gap Actually Lives}
+\label{sec:disc-gap}
+If depth-noise fidelity does not govern the gap, what does? For perception,
+Phase~4B answers directly: the real-versus-simulated planar pose gap is only
+$-1.4$ to $+3.6$\,mm across the four objects (Section~\ref{sec:results-realpose}),
+i.e.\ simulation already matches reality at the millimetre level, and
+$\text{sim\_clean} \approx \text{sim\_noisy}$ holds on real data---the negative
+result carries end-to-end. The dominant real-world error lies not in the depth
+statistics but in \emph{geometric calibration}. This emerged starkly in
+Phase~4C: the real arm over-reaches its analytic kinematic model by ${\sim}27\%$,
+and the six available calibration points cannot identify a corrected
+thirteen-parameter model, so any open-loop aim is capped at ${\sim}8$--$14$\,mm
+---larger than the tightest jaw tolerance---and the reachable grasp zone shrank
+to a ${\sim}4$\,cm patch. A single visual feedback correction restored aiming to
+the camera floor across the near workspace, precisely because the model error
+cancels as common-mode bias. The practical lesson echoes the origin of the
+reality-gap concept~\cite{jakobi1995noise}: for this system the limiting
+sim-to-real discrepancy is calibration (and, secondarily, lighting and
+segmentation), not sensor-noise modelling.
+
+\subsection{Manipulation Is Gated by Grip Mechanics, Not Perception}
+\label{sec:disc-grip}
+Phase~4C adds a sharper lesson about \emph{manipulation}. With aiming made
+accurate, the per-object grasp rates are set by the mechanical interaction
+between object shape and the parallel-jaw gripper, and are predicted by neither
+the simulated feasibility ceiling nor the measured pose error
+(Section~\ref{sec:results-realmanip}). The analytic feasibility metric is a
+rigid geometric proxy---it asks only whether the open jaws would straddle the
+perceived centre---so it both \emph{under}-predicts a forceful grasp on a
+compliant, near-jaw-width can (coke, $0\% \to 67\%$) and \emph{over}-predicts a
+smooth sphere that flat jaws cannot hold (golf, $65\% \to 20\%$). This refines
+the data-driven grasping literature's distinction between geometric reachability
+and grasp stability~\cite{bohg2014grasp}: a predefined known-object grasp
+ultimately succeeds or fails on form/force closure, which a translation-only
+pose-feasibility check does not model. For the thesis's purpose the implication
+is consistent across both directions of divergence---perception, and even pose
+error, is not the manipulation bottleneck for these objects.
+
+\subsection{Limitations}
+\label{sec:disc-limits}
+Several limitations qualify these conclusions. (i)~Simulated grasping is scored
+\emph{analytically}: Gazebo Classic cannot reliably contact-grasp small or
+curved objects (finger collisions pass through the mesh), so Phase~4A used a
+geometric grasp-feasible criterion rather than physical contact. (ii)~The noise
+model omits spatial correlation and multipath, and its lateral-jitter term uses
+the literature value ($0.8$\,px)~\cite{nguyen2012modeling} rather than a
+separately measured one. (iii)~The real perception gap (Phase~4B) rests on
+$n=4$ usable scenes per object, because the reliable ToF region is smaller than
+the RGB marker field of view. (iv)~The real manipulation (Phase~4C) is confined
+to the near workspace; the far-edge fall-off is a gripper-marker mount issue,
+fixable by remounting the marker low over the jaws, and is unrelated to the
+noise question. (v)~Gazebo Classic reached end-of-life in January~2025. None of
+these affect the central negative result, which is established independently in
+Phases~2 and~3 and corroborated on real data in Phase~4B.
+
+\subsection{Synthesis}
+\label{sec:disc-synthesis}
+Taken together, the phases form a coherent chain. The real ToF sensor is quiet
+in the bulk and noisy only at object edges (SQ1); a robust median estimator
+discards exactly that edge noise, so injecting it changes nothing (SQ2, the
+negative result); the same null propagates to simulated manipulation (SQ3, sim)
+and is confirmed on real perception (Phase~4B, $\text{sim}\approx\text{real}$);
+and on the real arm (Phase~4C) the residual gap is dominated by kinematic
+calibration and grip mechanics, not by depth-noise fidelity. The answer to the
+main research question is therefore that, for a robust median-centroid
+estimator, modelling realistic ToF noise does \emph{not} measurably reduce the
+sim-to-real gap---a valid negative result that redirects attention to
+calibration, lighting, and segmentation as the operative sources of the gap.

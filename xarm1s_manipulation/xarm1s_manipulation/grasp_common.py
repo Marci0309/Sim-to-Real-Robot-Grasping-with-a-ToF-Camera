@@ -44,14 +44,14 @@ except ImportError:                     # standalone context (Windows real arm)
 OBJECTS: Dict[str, dict] = {
     "coke_can":  dict(model="coke_can",  nominal=(0.14, 0.11), grasp_z=0.755,
                       capture_tol=0.0015, bias=(0.0, 0.0), minor_axis=(1.0, 0.0),
-                      grasp_width=0.052, place=(0.27, 0.07), half_h=0.026,
-                      place_settle=True),  # (55-52)/2, at the jaw size limit
+                      grasp_width=0.052, place=(0.19, -0.05), half_h=0.026,
+                      place_settle=True),  # (55-52)/2, at the jaw size limit; drop spot = blue_box's (on-table)
     "banana":    dict(model="banana",    nominal=(0.14, -0.11), grasp_z=0.755,
                       capture_tol=0.010, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
-                      grasp_width=0.035, place=(0.27, -0.07), half_h=0.015),  # (55-35)/2
+                      grasp_width=0.035, place=(0.19, -0.05), half_h=0.015),  # (55-35)/2; drop spot = blue_box's (on-table)
     "golf_ball": dict(model="golf_ball", nominal=(-0.14, 0.11), grasp_z=0.755,
                       capture_tol=0.006, bias=(0.0, 0.0), minor_axis=None,
-                      grasp_width=0.043, place=(0.19, 0.05), half_h=0.0214),  # (55-43)/2
+                      grasp_width=0.043, place=(0.19, -0.05), half_h=0.0214),  # (55-43)/2; drop spot = blue_box's (on-table)
     "blue_box":  dict(model="blue_box",  nominal=(-0.14, -0.11), grasp_z=0.755,
                       capture_tol=0.0075, bias=(0.0, 0.0), minor_axis=(0.0, 1.0),
                       grasp_width=0.040, place=(0.19, -0.05), half_h=0.015),  # (55-40)/2

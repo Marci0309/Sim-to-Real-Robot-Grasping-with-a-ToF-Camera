@@ -1,0 +1,9 @@
+{
+  "name": "servotest",
+  "socket": "CAM_B",
+  "width": 1280,
+  "height": 800,
+  "n_frames": 30,
+  "camera_ip": "169.254.1.222",
+  "timestamp": "2026-06-13T21:10:13"
+}

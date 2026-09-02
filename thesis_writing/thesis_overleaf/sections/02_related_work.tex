@@ -1,0 +1,56 @@
+\section{Related Work}\label{sec:related}
+\subsection{The sim-to-real gap and domain randomisation}
+The gap between simulated and real robot behaviour is a long-standing concern. Early work
+in evolutionary robotics framed it as the reality gap and argued that controllers
+transfer only when the simulator captures the right sources of variation, with noise
+playing a central role in preventing overfitting to simulator artefacts
+\cite{jakobi1995noise}. Domain randomisation generalises this idea by sampling simulator
+parameters such as textures, lighting, and dynamics, so that the real world appears as
+one more draw from a broad training distribution \cite{tobin2017domain}. Such methods are
+powerful for learned systems but are typically applied as a blanket strategy; they do not
+attribute the residual gap to a specific physical cause. This thesis takes the
+complementary, analytic route of isolating one cause, ToF depth noise, and measuring its
+effect directly.
+
+\subsection{ToF and depth-sensor noise modelling}
+Depth sensors have well-studied, sensor-specific error characteristics. Structured-light
+and ToF cameras differ markedly, and ToF noise in particular is shaped by integration
+time, multipath, and surface reflectance \cite{sarbolandi2015kinect,foix2011lockin}. For
+consumer depth cameras, a widely used axial-and-lateral model expresses the depth
+standard deviation as a function of range and viewing angle \cite{nguyen2012modeling},
+while empirical characterisations of Kinect-class sensors report range-dependent
+precision and systematic bias \cite{khoshelham2012accuracy}. A recurring finding is that
+a large fraction of usable error concentrates at depth discontinuities as flying or mixed
+pixels \cite{foix2011lockin,sarbolandi2015kinect}. We adopt these models as the expected
+behaviour that our own measurements test, and we report where they do and do not hold for
+the OAK-D SR PoE.
+
+\subsection{Tabletop perception and pose estimation}
+Classical tabletop perception pipelines segment objects from a dominant support plane,
+often by fitting the plane with RANSAC and clustering the remaining points
+\cite{rusu2008towards}. When the support surface is known and fronto-parallel, as in our
+fixed overhead setup, the plane fit can be replaced by a simpler depth threshold; we make
+this substitution deliberately and cite the RANSAC-based pipeline only as a point of
+contrast. For evaluating pose, the BOP benchmark consolidated metrics and datasets for 6D
+object pose \cite{hodan2018bop}; we use only its notion of aligning the visible top
+surface, because our estimator produces a translation-only (3-DoF) pose rather than a
+full 6D pose with orientation.
+
+\subsection{Fiducial markers for ground truth}
+Establishing a real-world reference frame requires reliable fiducials. Square markers such
+as ArUco provide robust, occlusion-tolerant detection \cite{garridojurado2014aruco}, and
+fast detectors improve corner localisation and detection speed
+\cite{romeroramirez2018charuco}. We use a printed ChArUco board (ArUco markers combined
+with a chessboard) to recover the camera-to-table transform by direct \texttt{solvePnP},
+and individual markers to obtain per-object ground-truth positions.
+
+\subsection{Grasping}
+Data-driven grasp synthesis spans analytic and learned approaches and is surveyed
+comprehensively in \citeA{bohg2014grasp}; learned multi-view grasping in clutter is an
+active line within the host lab \cite{kasaei2021mvgrasp}. Our work does not contribute a
+grasping method. Consistent with the proposal, we use a fixed, predefined grasp for known
+objects so that any grasp error is attributable to perception rather than to grasp
+planning, and we use this baseline purely to test whether pose-level errors propagate to
+pick success.
+
+% =====================================================================

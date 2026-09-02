@@ -1,0 +1,9 @@
+{
+  "name": "_servo",
+  "socket": "CAM_B",
+  "width": 1280,
+  "height": 800,
+  "n_frames": 10,
+  "camera_ip": "169.254.1.222",
+  "timestamp": "2026-06-22T12:10:19"
+}

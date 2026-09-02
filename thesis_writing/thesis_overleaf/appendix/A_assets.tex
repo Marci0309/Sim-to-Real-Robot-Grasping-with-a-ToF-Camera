@@ -1,0 +1,24 @@
+\section{Assets and Attribution}\label{app:assets}
+This appendix records the third-party assets and software used in the project.
+
+\paragraph{3D models.} The xArm~1S robot description (URDF and meshes) is adapted from a
+community-maintained model published on GrabCAD by Yair Casas \cite{grabcad_xarm}. The
+coke-can mesh is ``Soda Can 250ml'' by sebastian204 \cite{sketchfab_cokecan} and the banana
+mesh is ``Banana'' by Lassi Kaukonen \cite{sketchfab_banana}, both on Sketchfab under
+CC-BY-4.0. The golf ball and blue box are simulation primitives (a sphere and a box) with no
+external mesh, and the coke can is modelled as a slim primitive cylinder.
+
+\smallskip\noindent\emph{Required CC-BY-4.0 attribution.} This work is based on ``Soda Can
+250ml'' (\url{https://sketchfab.com/3d-models/soda-can-250ml-557bd388b7b340a88053016f39c3d514})
+by sebastian204, and ``Banana''
+(\url{https://sketchfab.com/3d-models/banana-dda3a1f707a94c52bed79578e120937c}) by Lassi
+Kaukonen, both licensed under CC-BY-4.0 (\url{http://creativecommons.org/licenses/by/4.0/}).
+
+\paragraph{Software.} The simulation uses Gazebo Classic~11 \cite{koenig2004gazebo} with
+ROS~2 Humble \cite{macenski2022ros2} and a vendored \texttt{gazebo\_ros2\_control}
+\cite{gazebo_ros2_control}. The custom contact-triggered attach plugin follows the
+IFRA-Cranfield link-attacher pattern \cite{link_attacher} and is used for visualisation only.
+Perception uses OpenCV \cite{bradski2000opencv} and the tf2 transform library
+\cite{foote2013tf}; fiducials use ArUco and ChArUco
+\cite{garridojurado2014aruco,romeroramirez2018charuco}. The real camera is driven through
+DepthAI \cite{depthai_docs} on the Luxonis OAK-D SR PoE \cite{luxonis_oakd}.
