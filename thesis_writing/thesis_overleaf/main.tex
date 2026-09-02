@@ -1,0 +1,118 @@
+% =====================================================================
+%  Investigating the Sim-to-Real Gap in RGB-D Based Tabletop Pose
+%  Estimation and Manipulation  --  M. M. Szokedencsi (s5173191), RUG BSc AI
+%
+%  SELF-CONTAINED build: compiles in Overleaf out-of-the-box (no custom .sty).
+%  Citation style: APA via apacite (the official RUG BSc-AI template default).
+%  Each chapter lives in sections/ ; appendices in appendix/ (\input below).
+%
+%  BUILD: pdfLaTeX -> BibTeX -> pdfLaTeX x2   (Overleaf "Recompile" handles it)
+% =====================================================================
+\documentclass[10pt,a4paper,twocolumn]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{dblfloatfix}   % fix double-column figure* ordering so it doesn't block single figures
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\usepackage{apacite}            % APA author-year citations
+\usepackage[hidelinks]{hyperref}
+
+% --- more generous float placement so figures/tables stay near their text ---
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.7}
+
+\graphicspath{{figures/}}
+
+\begin{document}
+
+% ========================= TITLE PAGE =========================
+\begin{titlepage}
+\centering
+\vspace*{2.3cm}
+{\Huge\bfseries Investigating the Sim-to-Real Gap in RGB-D Based Tabletop Pose Estimation and Manipulation\par}
+\vspace{1.3cm}
+{\Large Bachelor's Thesis\par}
+\vspace{0.25cm}
+{\large in Artificial Intelligence\par}
+\vspace{2.6cm}
+{\large\itshape Author\par}
+\vspace{0.2cm}
+{\Large Marcell Mor Szokedencsi\par}
+\vspace{0.15cm}
+{\large s5173191 \quad m.m.szokedencsi@student.rug.nl\par}
+\vspace{1.6cm}
+{\large\itshape Supervisor\par}
+\vspace{0.2cm}
+{\Large Dr.\ H.\ Kasaei\par}
+\vfill
+{\large University of Groningen\par}
+\vspace{0.15cm}
+{\large Bernoulli Institute \textemdash\ Faculty of Science and Engineering\par}
+\vspace{0.9cm}
+{\large \today\par}
+\end{titlepage}
+
+% =========== full-width abstract, above the two-column body ===========
+\twocolumn[%
+\begin{center}
+{\Large\bfseries Abstract}
+\end{center}
+\begin{center}
+\begin{minipage}{0.93\textwidth}
+\small\noindent
+Vision-based manipulation systems are usually developed in simulation and then
+transferred to hardware, where they often degrade. A frequently cited cause of this
+sim-to-real gap is sensor mismatch, particularly depth noise that simulated RGB-D
+streams fail to reproduce. This thesis presents a controlled study of how realistic
+Time-of-Flight (ToF) depth noise affects a fixed top-down tabletop pipeline for pose
+estimation and pick-and-place, using a Luxonis OAK-D SR PoE camera and a low-cost
+xArm~1S arm in a Gazebo Classic and ROS~2 stack. We characterise the real sensor,
+inject a four-term ToF noise model into the simulated depth, and evaluate pose accuracy
+and grasping in clean simulation, noisy simulation, and on the real robot. The headline
+result is negative: for a depth-segmented median-centroid estimator, injecting noise at
+the measured level has no measurable effect on pose RMSE (below \SI{0.1}{\milli\metre}
+versus clean) and none on grasp success, because the per-axis median discards the edge
+flying-pixels that carry the real noise. Accuracy degrades only when the axial term is
+scaled roughly tenfold, a regime characteristic of harsh, hot, or outdoor ToF operation
+rather than the controlled indoor setting studied here; this verifies that the null
+reflects the estimator, not a broken pipeline. The real system confirms the simulation:
+a planar pose gap of $-1.4$ to $+3.6$\,mm across four objects and a 57\% closed-loop
+grasp success rate, with per-object outcomes set by grip mechanics rather than depth
+noise. We conclude that, for an outlier-robust estimator, the sim-to-real gap here is
+dominated by calibration and lighting rather than depth-noise-model fidelity.
+\end{minipage}
+\end{center}
+\vspace{1.2em}
+]
+
+% --- chapters (one file each) ---
+\input{sections/01_introduction}
+\input{sections/02_related_work}
+\input{sections/03_methods}
+\input{sections/04_experimental_setup}
+\input{sections/05_results}
+\input{sections/06_discussion}
+\input{sections/07_conclusion}
+
+% --- references (APA / apacite) ---
+\bibliographystyle{apacite}
+\bibliography{references}
+
+% --- appendices (one file each) ---
+\appendix
+\onecolumn
+\input{appendix/A_assets}
+\input{appendix/B_declaration}
+\input{appendix/C_reproducibility}
+
+\end{document}

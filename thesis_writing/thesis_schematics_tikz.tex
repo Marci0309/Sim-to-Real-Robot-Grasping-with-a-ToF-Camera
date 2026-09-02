@@ -1,0 +1,114 @@
+% =====================================================================
+%  Paste-ready TikZ for the two "must-make" thesis schematics.
+%  PNG fallbacks already rendered: evaluation/results/{servo_schematic,system_pipeline}.png
+%
+%  PREAMBLE (add once, in the document preamble):
+%    \usepackage{tikz}
+%    \usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds}
+%    \usepackage{amsmath}
+%  Two-column note: both are wide -> use figure* (full text width). If you prefer a
+%  single column, shrink with \resizebox{\linewidth}{!}{ ... the tikzpicture ... }.
+% =====================================================================
+
+
+% ----------------------------------------------------------------------
+% FIGURE F11 — Closed-loop visual-servo schematic (Methods 3.8)
+% ----------------------------------------------------------------------
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small,
+  win/.style={draw=blue!60!black, very thick, rounded corners, align=center, fill=white},
+  insight/.style={draw=blue!60!black, very thick, rounded corners, align=center, fill=blue!4},
+  law/.style={draw=black!70, very thick, rounded corners, align=center, fill=white},
+  marker/.style={draw, fill=white, minimum size=4mm, inner sep=0pt},
+  >={Stealth[length=2.5mm]},
+]
+  % camera
+  \node[win] (cam) at (0,4.6) {Overhead OAK-D SR PoE\\(single camera)};
+  % table
+  \draw[fill=blue!3, draw=black!60, thick] (-5.2,-1.0) rectangle (5.2,-0.45);
+  \node[anchor=west, gray] at (-5.1,-0.72) {table frame};
+  % FOV cone
+  \fill[yellow!18, opacity=.5] (cam.south west) -- (cam.south east) -- (4.3,-0.45) -- (-4.3,-0.45) -- cycle;
+  % object + marker + p_obj
+  \node[draw=black!60, thick, fill=blue!18, minimum width=8mm, minimum height=6mm] (obj) at (3.3,-0.15) {};
+  \node[marker] at (3.3,0.45) {\rule{2mm}{2mm}};
+  \fill[green!55!black] (3.3,-0.15) circle (2.2pt);
+  \node[gray, anchor=west, font=\scriptsize] at (3.9,0.45) {object\\marker (id 0--3)};
+  \node[green!45!black, font=\footnotesize] at (3.45,-0.62) {$p_{\mathrm{obj}}$};
+  % gripper + marker + p_marker
+  \draw[fill=black!25, draw=black!60] (-3.0,-0.45) rectangle (-2.84,0.25);
+  \draw[fill=black!25, draw=black!60] (-2.3,-0.45) rectangle (-2.14,0.25);
+  \draw[fill=black!38, draw=black!60] (-3.0,0.25) rectangle (-2.14,0.43);
+  \node[marker] at (-2.57,0.85) {\rule{2mm}{2mm}};
+  \fill[orange!80!black] (-2.57,-0.10) circle (2.2pt);
+  \node[gray, anchor=east, font=\scriptsize] at (-3.1,0.85) {gripper\\marker (id 4)};
+  \node[orange!75!black, font=\footnotesize, anchor=north] at (-2.57,-0.55) {$p_{\mathrm{marker}}{+}t_{\mathrm{tip}}$};
+  % error vector
+  \draw[->, red, very thick] (-2.57,-0.10) -- (3.3,-0.15)
+        node[midway, above, red] {$\mathbf{e}=p_{\mathrm{obj}}-(p_{\mathrm{marker}}+t_{\mathrm{tip}})$};
+  % measurement rays
+  \draw[->, green!55!black, dashed] (cam.south) -- (3.3,0.0);
+  \draw[->, orange!80!black, dashed] (cam.south) -- (-2.57,0.05);
+  % update law
+  \node[law] (law) at (-3.7,3.0) {$\mathbf{target}\mathrel{{+}{=}}K\cdot\mathbf{e}\;\;(K\approx0.6)$\\
+        repeat until $\lVert\mathbf{e}\rVert<3$\,mm,\\ then descend $+$ close};
+  \draw[->, black!70, thick] (law.south) to[bend right=20] (-2.57,0.15);
+  % insight
+  \node[insight] (ins) at (3.5,3.0) {Both points read through the\\\textsc{same} camera \& frame
+        $\Rightarrow$ wrong FK\\and the $0.777$ scale cancel as\\common-mode bias
+        $\Rightarrow$ aim is\\camera-bound ($\sim$1--4\,mm)};
+\end{tikzpicture}
+\caption{Closed-loop visual-servo alignment (Phase~4C, baseline/Methods). The overhead camera
+measures the object point $p_{\mathrm{obj}}$ and the gripper-marker point
+$p_{\mathrm{marker}}{+}t_{\mathrm{tip}}$ in the same table frame; the inverse-kinematics target is
+nudged by $K\cdot\mathbf{e}$ until the in-frame error falls below $3$\,mm. Because both points pass
+through the same camera, the incorrect forward kinematics and the global scale cancel as common-mode
+bias and aiming becomes camera-bound.}
+\label{fig:servo}
+\end{figure*}
+
+
+% ----------------------------------------------------------------------
+% FIGURE F10 — System / experimental pipeline (Methods 3.1 / Setup 4.1)
+% ----------------------------------------------------------------------
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[
+  font=\small, node distance=8mm and 12mm,
+  win/.style={draw=blue!60!black, very thick, rounded corners, align=center, fill=white, inner sep=4pt},
+  wsl/.style={draw=green!45!black, very thick, rounded corners, align=center, fill=white, inner sep=4pt},
+  wslf/.style={draw=green!45!black, very thick, rounded corners, align=center, fill=green!6, inner sep=4pt},
+  >={Stealth[length=2.5mm]}, thick,
+]
+  % sources (left, stacked)
+  \node[wsl]  (sim)  {Gazebo Classic 11 twin\\(clean sim depth)\\+ ROS\,2 Humble};
+  \node[wslf] (inj)  [below=of sim] {Depth-noise injector\\\scriptsize axial $\cdot$ lateral $\cdot$ edge $\cdot$ dropout};
+  \node[win]  (real) [below=of inj] {Real OAK-D SR PoE\\(ToF, overhead 0.68\,m)};
+  % perception (center)
+  \node[wsl, right=22mm of inj] (perc)
+        {\textbf{Perception} (median-centroid)\\[2pt]\scriptsize HSV label-only $\cdot$ depth
+         table-removal ($>$5\,mm)\\\scriptsize $\cdot$ connected components $\cdot$ per-axis median};
+  \node[gray, font=\scriptsize, below=2mm of perc] {$\rightarrow$ table-frame $(x,y)$, translation-only};
+  % IK + grasp
+  \node[wsl, right=of perc] (ik) {Analytic IK\\(5-DOF,\\closed-form)};
+  \node[win, right=of ik] (grasp) {\textbf{Grasp}\\(predefined angle)\\[2pt]\scriptsize sim: analytic
+        feasibility\\\scriptsize real: closed-loop servo};
+  % flow
+  \draw[->] (sim.east)  to[out=0,in=150] (perc.west);
+  \draw[->] (sim) -- (inj);
+  \draw[->] (inj.east)  -- (perc.west);
+  \draw[->] (real.east) to[out=0,in=210] (perc.west);
+  \draw[->] (perc) -- (ik);
+  \draw[->] (ik) -- (grasp);
+  % legend
+  \node[draw=blue!60!black, very thick, rounded corners, minimum size=3mm, label=right:{\footnotesize Windows host (camera + arm)}] at (0,2.6) {};
+  \node[draw=green!45!black, very thick, rounded corners, minimum size=3mm, label=right:{\footnotesize WSL host (perception $\cdot$ simulation $\cdot$ analysis)}] at (5.5,2.6) {};
+\end{tikzpicture}
+\caption{System pipeline. Clean simulation, noise-injected simulation, and the real OAK-D feed one
+shared perception$\rightarrow$IK$\rightarrow$grasp path, isolating depth noise as the only variable.
+Box colour indicates the host: the camera and arm run on Windows; perception, simulation, and analysis
+run under WSL.}
+\label{fig:pipeline}
+\end{figure*}

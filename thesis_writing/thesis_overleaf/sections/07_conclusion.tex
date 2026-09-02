@@ -1,0 +1,43 @@
+\section{Conclusion and Future Work}\label{sec:conclusion}
+
+\paragraph{Summary of main contributions.}
+This thesis asked how modelling realistic ToF sensor noise affects the sim-to-real gap in
+RGB-D tabletop pose estimation and manipulation, and answered it through five connected
+phases. It contributes (i) a measured ToF characterisation showing that the OAK-D's bulk
+depth is sub-millimetre and flat with range while the pose-relevant noise is concentrated in
+edge flying-pixels; (ii) a verified four-term injection module; (iii) the central negative
+result---for a depth-segmented median-centroid estimator, injecting measured ToF noise has no
+measurable effect on pose RMSE (under $0.1$\,mm versus clean) and none on grasp feasibility,
+with degradation appearing only near $\times10$ ($\sigma\approx9$\,mm) for pose and $\times20$
+for manipulation; (iv) end-to-end real validation, a $-1.4$ to $+3.6$\,mm real-versus-sim
+planar gap and a $34/60$ ($57\%$) closed-loop real grasp rate (100\% for the aiming-limited
+blue box inside the near-zone); and (v) a reproducible Gazebo/ROS~2 setup. The synthesis is
+that, for this class of estimator, the sim-to-real gap is not governed by depth-noise-model
+fidelity; it lives in calibration, lighting, and segmentation, and on the real arm the single
+largest source is an open-loop kinematic-model error that one visual-feedback correction
+removes within its working range. With aim corrected, the per-object real rates are set by
+grip mechanics rather than perception. Crucially, this null is \emph{conditional on the
+operating environment}: the same ablation shows that once depth noise reaches the level
+typical of harsh, hot, or outdoor ToF operation---about $\times10$ the indoor measurement
+($\sigma\approx9$\,mm)---it does degrade both pose and grasp success, so for a system
+intended to leave the controlled indoor regime, faithful depth-noise modelling becomes
+worthwhile (Section~\ref{sec:disc-scope}).
+
+\paragraph{Future work.}
+The clearest hardware lever is a gripper better matched to round and near-jaw-width objects:
+compliant fingertip pads or a small cradle would address the golf ball's roll-out and further
+stabilise the coke can's forceful grip. Mounting the gripper marker low and directly over the
+jaw gap, so that it tracks the fingertips one-to-one, should extend reliable convergence to
+the full reach. The arm-base calibration could be re-solved with more touch points or replaced
+by a learned dense-correction field in the style of low-cost reproducible-arm work
+\cite{yang2019replab}. On the perception side, the noise model could be extended to capture
+spatial correlation and multipath, and the median-centroid baseline could be compared against
+a learned pose or grasp model such as MVGrasp \cite{kasaei2021mvgrasp} to test whether a
+data-driven estimator is more or less sensitive to the same edge noise. Characterising the
+OAK-D in outdoor, dusty, or high-temperature conditions would directly test the predicted
+crossover into the noise-limited regime (Section~\ref{sec:disc-scope}), where these
+extensions would matter most. Finally, repeating the
+simulated manipulation on a contact-capable physics backend would let the analytic feasibility
+metric be validated against scored physical grasps.
+
+% =====================================================================

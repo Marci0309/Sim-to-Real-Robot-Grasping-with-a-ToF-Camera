@@ -1,0 +1,92 @@
+\section{Introduction}
+RGB-D perception is a standard building block for object localisation and robotic
+manipulation. Because real robot time is slow, fragile, and expensive, a large share of
+this work is developed in simulation and only later moved onto hardware. The recurring
+difficulty is that pipelines which behave well in simulation often lose accuracy or fail
+outright once they meet a real sensor and a real arm. This discrepancy is known as the
+reality gap or sim-to-real gap, and it was already identified in evolutionary robotics
+three decades ago, where the role of noise in bridging the gap was made explicit
+\cite{jakobi1995noise}. A common modern response is domain randomisation, which
+deliberately varies simulator parameters so that the real world looks like one more
+sample of the training distribution \cite{tobin2017domain}. Randomisation is effective
+but blunt: it rarely tells us which mismatch actually mattered in a given setup.
+
+This thesis isolates a single, measurable source of mismatch in a deliberately
+constrained setting. We use a fixed top-down camera over a tabletop, so the dominant
+uncertainty is depth sensing rather than viewpoint or hand-eye drift. The camera is a
+Time-of-Flight (ToF) device, whose depth error depends on range, surface properties, and
+scene geometry. The question we ask is narrow and quantitative: if we measure the real
+ToF noise and inject a faithful model of it into simulation, does the simulated
+pose-estimation and grasping behaviour move closer to the real system?
+
+The answer we report is, for this pipeline, no, and we argue that this negative result is
+the most useful outcome of the project. The perception component is a classical,
+outlier-robust estimator, and it turns out to absorb realistic ToF noise almost
+completely. Rather than treat that as a failure, we quantify exactly how much noise the
+estimator tolerates before it breaks, show that the breaking point sits an order of
+magnitude above reality, and confirm on the real robot that the simulated conclusion
+holds end to end. The practical message is that, for an estimator of this kind, effort
+spent on high-fidelity depth-noise models is misdirected; the residual gap lives
+elsewhere, in calibration and lighting.
+
+\subsection{Research Questions}
+The work is organised around one main research question and three sub-questions.
+
+\noindent\textbf{Main RQ.} How does modelling realistic Time-of-Flight (ToF) sensor
+noise affect the sim-to-real gap in RGB-D tabletop pose estimation and manipulation?
+\begin{itemize}
+  \item \textbf{SQ1 (noise statistics).} What is the real ToF sensor's noise behaviour,
+  and how well do literature models (Nguyen 2012, Kinect-class) describe it? Addressed in
+  Phase~2.
+  \item \textbf{SQ2 (pose accuracy).} Does injecting measured noise into simulation
+  change pose-estimation accuracy relative to clean simulation? Addressed in Phase~3.
+  \item \textbf{SQ3 (manipulation propagation).} To what extent do pose estimation errors
+  propagate to manipulation performance (pick success rate and placement accuracy)?
+  Addressed in Phases~4A (simulation), 4B (real perception), and 4C (real manipulation).
+\end{itemize}
+
+\subsection{Hypothesis}
+The proposal stated the directional hypothesis that injecting measured ToF noise into
+simulation will reduce the sim-to-real gap. As the results show, this hypothesis is not
+confirmed at realistic noise levels. We treat the refutation as a finding in its own
+right and design the later phases to test whether the same null carries from pose
+estimation through to manipulation.
+
+\subsection{Contributions}
+\begin{enumerate}
+  \item A measured ToF noise characterisation of the OAK-D SR PoE in a fixed top-down
+  tabletop setup, including the finding that bulk (body) depth is sub-millimetre and
+  essentially flat with range, while edge flying-pixels dominate the pose-relevant error.
+  \item A practical depth-noise injection module that implements four literature ToF
+  terms (axial Gaussian, lateral jitter, edge mixed-pixels, and dropout) and exposes an
+  axial-scale control for ablation.
+  \item The central, controlled result: at the measured sensor noise level, the injected
+  noise has no measurable effect on pose RMSE or on grasp success for a depth-segmented
+  median-centroid estimator. Degradation appears only at roughly ten times the measured
+  axial noise for pose and roughly twenty times for manipulation. Because the injector
+  demonstrably breaks perception when scaled far enough, the null is sound rather than an
+  artefact.
+  \item End-to-end validation on the real system: a real-versus-sim planar pose gap
+  between $-1.4$ and $+3.6$\,mm across four objects, and a 60-trial real closed-loop
+  pick-and-place (34/60 lifts) showing that, once visual feedback corrects the aiming
+  error, real grasp success is governed by object grip mechanics rather than by depth
+  noise or the simulated pose-error propagation.
+  \item A reproducible Gazebo Classic and ROS~2 tabletop manipulation setup for the
+  xArm~1S with an overhead RGB-D sensor.
+\end{enumerate}
+It is important to be precise about scope. The pick-and-place component is the proposal's
+authorised predefined grasp strategy for known object types; it is a baseline used to
+test whether the pose-level null propagates to grasping, and it is not presented as a
+novel system. The engineering of the real closed-loop executor (Phase~4C) is reported as
+methods and appendix material, not as a results contribution.
+
+\subsection{Thesis Outline}
+Section~\ref{sec:related} reviews related work. Section~\ref{sec:methods} describes the
+simulation, the noise characterisation protocol, the injection model, the perception and
+grasp pipelines, and the real-world calibration and control. Section~\ref{sec:setup}
+specifies the hardware, objects, conditions, trial counts, and metrics.
+Section~\ref{sec:results} reports the results. Section~\ref{sec:discussion} interprets the
+negative result and its limitations, and Section~\ref{sec:conclusion} concludes and
+outlines future work.
+
+% =====================================================================

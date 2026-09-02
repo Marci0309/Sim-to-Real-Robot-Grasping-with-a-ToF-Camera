@@ -1,0 +1,308 @@
+% =====================================================================
+%  references.bib  --  BSc thesis, Marcell Mor Szokedencsi (s5173191), RUG
+%  "Investigating the Sim-to-Real Gap in RGB-D Based Tabletop Pose
+%   Estimation and Manipulation"  --  Supervisor: Dr. H. Kasaei (IRL Lab)
+%
+%  *** EVERY scholarly entry was VERIFIED against its authoritative record
+%      (DOI / arXiv / DBLP / publisher) on 2026-06-27. No hallucinations. ***
+%  Style: APA author-year (\usepackage{apacite} + \bibliographystyle{apacite}) --
+%      the official RUG BSc-AI template default. (See SUPERVISOR_FORMAT_FINDINGS.md.)
+%      NOTE: with APA the in-text citations are author-year, e.g. \cite{} ->
+%      (Nguyen et al., 2012); convert the draft's numeric [n] cites + any
+%      "as in [5]" prose accordingly.
+%
+%  PART 1 = verified used in code (cite freely, in Methods/Results)
+%  PART 2 = related-work / background framing only (NOT methods you built)
+%  PART 3 = software & assets actually used
+%  PART 4 = EXCLUDED -- commented out with the reason. Do NOT cite unless you
+%           genuinely add that method/discussion (otherwise it is a false claim).
+% =====================================================================
+
+
+% #####################################################################
+% #  PART 1 -- VERIFIED USED IN CODE
+% #####################################################################
+
+% --- Depth-sensor noise (depth_noise_injector.py + Phase-2 characterization) ---
+@inproceedings{nguyen2012modeling,
+  author    = {Nguyen, Chuong V. and Izadi, Shahram and Lovell, David R.},
+  title     = {Modeling {Kinect} Sensor Noise for Improved {3D} Reconstruction and Tracking},
+  booktitle = {2012 Second International Conference on 3D Imaging, Modeling, Processing, Visualization \& Transmission (3DIMPVT)},
+  pages     = {524--530}, year = {2012}, publisher = {IEEE},
+  doi       = {10.1109/3DIMPVT.2012.84}
+}   % USED: injector axial Gaussian Eq.3 + lateral jitter Eq.1-2. Also the
+    % range-dependent model your Phase-2 data TESTS and finds does not fit
+    % (Nguyen modeled a structured-light Kinect; OAK-D is multi-freq ToF).
+    % Verified: 3rd author is "David R. Lovell" (middle initial restored).
+
+@article{khoshelham2012accuracy,
+  author  = {Khoshelham, Kourosh and Oude Elberink, Sander},
+  title   = {Accuracy and Resolution of {Kinect} Depth Data for Indoor Mapping Applications},
+  journal = {Sensors}, volume = {12}, number = {2}, pages = {1437--1454},
+  year    = {2012}, doi = {10.3390/s120201437}
+}   % USED: planar-target protocol (Phase 2) + quantization limitation note.
+    % NB: Khoshelham sampled TEN distances (0.5-5.0 m) with a RANSAC plane fit;
+    % our "five distances 0.40-0.80 m" is OUR protocol "following [this]" -- do
+    % NOT write that this paper used five distances.
+
+@article{sarbolandi2015kinect,
+  author  = {Sarbolandi, Hamed and Lefloch, Damien and Kolb, Andreas},
+  title   = {{Kinect} Range Sensing: Structured-Light versus Time-of-Flight {Kinect}},
+  journal = {Computer Vision and Image Understanding}, volume = {139},
+  pages   = {1--20}, year = {2015}, doi = {10.1016/j.cviu.2015.05.006}
+}   % USED: injector edge mixed-pixels + dropout terms.
+
+@article{foix2011lockin,
+  author  = {Foix, Sergi and Aleny{\`a}, Guillem and Torras, Carme},
+  title   = {Lock-in Time-of-Flight ({ToF}) Cameras: A Survey},
+  journal = {IEEE Sensors Journal}, volume = {11}, number = {9},
+  pages   = {1917--1926}, year = {2011}, doi = {10.1109/JSEN.2010.2101060}
+}   % USED: injector edge/flying-pixel formulation.
+
+% --- Sim-to-real / ablation methodology (injector) ---
+@inproceedings{tobin2017domain,
+  author    = {Tobin, Josh and Fong, Rachel and Ray, Alex and Schneider, Jonas and Zaremba, Wojciech and Abbeel, Pieter},
+  title     = {Domain Randomization for Transferring Deep Neural Networks from Simulation to the Real World},
+  booktitle = {2017 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages     = {23--30}, year = {2017}, publisher = {IEEE},
+  doi       = {10.1109/IROS.2017.8202133}
+}   % USED: domain-randomization MOTIVATION for injecting/randomizing noise.
+    % HONESTY: Tobin does NOT provide the "seeded independent-RNG ablation
+    % methodology" -- that is YOUR own experimental design. Cite Tobin for the
+    % randomization motivation only; present the seeded ablation as your method.
+
+% --- Robust statistics (pose_estimator.py median centroid) ---
+@book{huber1981robust,
+  author    = {Huber, Peter J.},
+  title     = {Robust Statistics},
+  series    = {Wiley Series in Probability and Mathematical Statistics},
+  publisher = {John Wiley \& Sons}, address = {New York},
+  year      = {1981}, isbn = {0-471-41805-6}
+}   % USED: grounds the per-axis median as outlier-robust (50% breakdown point),
+    % i.e. WHY the median discards the 53-99% edge flying-pixel population.
+    % (Strict 50% is asymptotic; finite-sample is floor((n-1)/2)/n -> 0.5.)
+
+% --- Evaluation alignment (pose_evaluator.py) ---
+@inproceedings{hodan2018bop,
+  author    = {Hod{\v{a}}n, Tom{\'a}{\v{s}} and Michel, Frank and Brachmann, Eric and Kehl, Wadim and Buch, Anders Glent and Kraft, Dirk and Drost, Bertram and Vidal, Joel and Ihrke, Stephan and Zabulis, Xenophon and Sahin, Caner and Manhardt, Fabian and Tombari, Federico and Kim, Tae-Kyun and Matas, Ji{\v{r}}{\'\i} and Rother, Carsten},
+  title     = {{BOP}: Benchmark for {6D} Object Pose Estimation},
+  booktitle = {Computer Vision -- ECCV 2018}, series = {Lecture Notes in Computer Science}, volume = {11214},
+  pages     = {19--35}, year = {2018}, publisher = {Springer},
+  doi       = {10.1007/978-3-030-01249-6_2}
+}   % USED: evaluator aligns estimate (visible top surface) to GT (body
+    % centre + half_height) per BOP. Cite ONLY for this, NOT for ADD/VSD.
+    % Verified: pages 19--35 (was 19--34); full 16-author list restored.
+
+% --- Frame transforms (pose_estimator.py + injector) ---
+@inproceedings{foote2013tf,
+  author    = {Foote, Tully},
+  title     = {tf: The Transform Library},
+  booktitle = {2013 IEEE International Conference on Technologies for Practical Robot Applications (TePRA)},
+  pages     = {1--6}, year = {2013}, publisher = {IEEE},
+  doi       = {10.1109/TePRA.2013.6556373}
+}   % USED: tf2 camera-optical -> world transform; header preservation.
+
+% --- Inverse kinematics (arm_ik.py) ---
+@book{craig2005robotics,
+  author    = {Craig, John J.},
+  title     = {Introduction to Robotics: Mechanics and Control},
+  edition   = {3rd}, year = {2005}, publisher = {Pearson Prentice Hall},
+  address   = {Upper Saddle River, NJ}, isbn = {9780201543612}
+}   % USED: arm_ik.py closed-form IK cites Craig ch.4 (Spong ch.3 as alt).
+
+% --- Fiducials for Phase-4B extrinsics + ground truth ---
+@article{garridojurado2014aruco,
+  author  = {Garrido-Jurado, Sergio and Mu{\~n}oz-Salinas, Rafael and Madrid-Cuevas, Francisco J. and Mar{\'i}n-Jim{\'e}nez, Manuel J.},
+  title   = {Automatic Generation and Detection of Highly Reliable Fiducial Markers Under Occlusion},
+  journal = {Pattern Recognition}, volume = {47}, number = {6},
+  pages   = {2280--2292}, year = {2014}, doi = {10.1016/j.patcog.2014.01.005}
+}   % USED (Phase 4B): foundational ArUco paper -> object/board ground truth.
+
+@article{romeroramirez2018charuco,
+  author  = {Romero-Ramirez, Francisco J. and Mu{\~n}oz-Salinas, Rafael and Medina-Carnicer, Rafael},
+  title   = {Speeded Up Detection of Squared Fiducial Markers},
+  journal = {Image and Vision Computing}, volume = {76}, pages = {38--47},
+  year    = {2018}, doi = {10.1016/j.imavis.2018.05.004}
+}   % USED (Phase 4B): the fast ArUco DETECTION backend behind OpenCV's
+    % ChArUco; the board extrinsic solve uses it. NB: this is the ArUco
+    % detector, not the ChArUco-board paper itself (ChArUco = ArUco + chessboard).
+
+% --- Platform ---
+@inproceedings{koenig2004gazebo,
+  author    = {Koenig, Nathan and Howard, Andrew},
+  title     = {Design and Use Paradigms for {Gazebo}, an Open-Source Multi-Robot Simulator},
+  booktitle = {2004 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  volume    = {3}, pages = {2149--2154}, year = {2004}, publisher = {IEEE},
+  doi       = {10.1109/IROS.2004.1389727}
+}
+
+@article{macenski2022ros2,
+  author  = {Macenski, Steve and Foote, Tully and Gerkey, Brian and Lalancette, Chris and Woodall, William},
+  title   = {Robot Operating System 2: Design, Architecture, and Uses in the Wild},
+  journal = {Science Robotics}, volume = {7}, number = {66}, pages = {eabm6074},
+  year    = {2022}, doi = {10.1126/scirobotics.abm6074}
+}   % Verified: first name "Steve" (not Steven); article id eabm6074.
+
+@article{bradski2000opencv,
+  author  = {Bradski, Gary},
+  title   = {The {OpenCV} Library},
+  journal = {Dr. Dobb's Journal of Software Tools}, year = {2000}
+}   % USED: HSV, connectedComponents, distanceTransform, aruco, solvePnP.
+    % (vol/pages deliberately omitted per the official OpenCV citation form.)
+
+
+% #####################################################################
+% #  PART 2 -- RELATED WORK / BACKGROUND FRAMING ONLY
+% #  (legitimate in Introduction/Related Work; do NOT present as methods
+% #   you implemented.)
+% #####################################################################
+
+@inproceedings{jakobi1995noise,
+  author    = {Jakobi, Nick and Husbands, Phil and Harvey, Inman},
+  title     = {Noise and the Reality Gap: The Use of Simulation in Evolutionary Robotics},
+  booktitle = {Advances in Artificial Life (ECAL 1995)}, series = {Lecture Notes in Computer Science},
+  volume    = {929}, pages = {704--720}, year = {1995}, publisher = {Springer},
+  doi       = {10.1007/3-540-59496-5_337}
+}   % FRAMING: origin of the "reality gap" term (Introduction).
+
+@article{kasaei2021mvgrasp,
+  author  = {Kasaei, Hamidreza and Kasaei, Mohammadreza},
+  title   = {{MVGrasp}: Real-Time Multi-View {3D} Object Grasping in Highly Cluttered Environments},
+  journal = {arXiv preprint arXiv:2103.10997}, year = {2021}
+}   % FRAMING: supervisor's lab work; his students cite it in Related Work.
+    % (Also published: Robotics and Autonomous Systems 160:104313, 2022,
+    %  doi 10.1016/j.robot.2022.104313 -- cite the journal version if preferred.)
+
+@article{bohg2014grasp,
+  author  = {Bohg, Jeannette and Morales, Antonio and Asfour, Tamim and Kragic, Danica},
+  title   = {Data-Driven Grasp Synthesis---A Survey},
+  journal = {IEEE Transactions on Robotics}, volume = {30}, number = {2},
+  pages   = {289--309}, year = {2014}, doi = {10.1109/TRO.2013.2289018}
+}   % FRAMING ONLY: positions your predefined known-object grasp in the
+    % taxonomy + the geometric-reachability-vs-grasp-stability distinction.
+    % You did NOT implement a method from this paper.
+
+@article{rusu2008towards,
+  author  = {Rusu, Radu Bogdan and Marton, Zoltan Csaba and Blodow, Nico and Dolha, Mihai and Beetz, Michael},
+  title   = {Towards {3D} Point Cloud Based Object Maps for Household Environments},
+  journal = {Robotics and Autonomous Systems}, volume = {56}, number = {11},
+  pages   = {927--941}, year = {2008}, doi = {10.1016/j.robot.2008.08.005}
+}   % CONTRAST ONLY: the classic RANSAC-plane + Euclidean-cluster tabletop
+    % pipeline. Your perception is SIMPLER (median-depth threshold + 2D
+    % connected components). Cite as "unlike X, we ..." -- never as your method.
+    % (Author order verified: Rusu, Marton, Blodow, Dolha, Beetz -- compile from
+    %  THIS entry, not the draft PDF's hand-typed list which had it wrong.)
+
+% --- Low-cost reproducible arm benchmark (Phase-4C framing / future work) ---
+@inproceedings{yang2019replab,
+  author    = {Yang, Brian and Jayaraman, Dinesh and Zhang, Jesse and Levine, Sergey},
+  title     = {{REPLAB}: A Reproducible Low-Cost Arm Benchmark for Robotic Learning},
+  booktitle = {2019 International Conference on Robotics and Automation (ICRA)},
+  pages     = {8691--8697}, year = {2019}, publisher = {IEEE},
+  doi       = {10.1109/ICRA.2019.8794390},
+  note      = {Extended version: arXiv:1905.07447}
+}   % FRAMING: cite for the low-cost, reproducible robot-arm benchmark idea
+    % (Phase-4C context + future work). HONESTY: REPLAB is a hardware/benchmark
+    % platform; it did NOT introduce a "dense thin-plate-spline correction
+    % field". Do NOT cite it as the origin of that calibration technique --
+    % describe the TPS correction field as YOUR own planned fallback.
+    % Verified: 3rd author is Jesse Zhang (not "Jeff"); ICRA 2019 pp.8691-8697.
+
+% --- OPTIONAL ToF-noise corroboration (currently UNCITED in the draft) ---
+@inproceedings{cai2024flexx2,
+  author    = {Cai, Yuke and Plozza, Davide and Marty, Steven and Joseph, Paul and Magno, Michele},
+  title     = {Noise Analysis and Modeling of the {PMD} {Flexx2} Depth Camera for Robotic Applications},
+  booktitle = {2024 IEEE International Conference on Omni-layer Intelligent Systems (COINS)},
+  pages     = {422--427}, year = {2024},
+  doi       = {10.1109/COINS61597.2024.10622644},
+  note      = {Preprint: arXiv:2412.15040}
+}   % OPTIONAL background corroboration of ToF axial/lateral noise. Replaces the
+    % old (WRONG) "pinto2024flexx2" -- there is no author "Pinto"; real authors
+    % are Cai et al. Uncited entries are harmless (BibTeX omits them); cite for
+    % ToF noise corroboration only, NOT as the authority on flying/mixed pixels.
+
+
+% #####################################################################
+% #  PART 3 -- SOFTWARE & ASSETS USED  (cite + "Assets" appendix)
+% #####################################################################
+
+@misc{gazebo_ros2_control,
+  author = {{ros-controls contributors}},
+  title  = {{gazebo\_ros2\_control}: {ros2\_control} integration for {Gazebo} Classic},
+  howpublished = {\url{https://github.com/ros-controls/gazebo_ros2_control}},
+  year   = {2024}, note = {Humble branch v0.4.12; BSD-3-Clause / Apache-2.0}
+}
+
+@misc{link_attacher,
+  author = {Bueno Viso, Mikel and Asif, Seemal and Webb, Phil},
+  title  = {{IFRA\_LinkAttacher}: A {ROS}2 {Gazebo} Plugin for Creating a Fixed Joint Between Two Links},
+  howpublished = {\url{https://github.com/IFRA-Cranfield/IFRA_LinkAttacher}},
+  year   = {2023}, note = {Apache-2.0; IFRA-Cranfield, Cranfield University. Pattern followed by our MIT xarm1s\_grasp\_plugin (visualisation only).}
+}   % FIXED: was conflated with PAL's gazebo_ros_link_attacher (a different,
+    % ROS1/virtual-joint repo). You use the ROS2 fixed-joint pattern -> IFRA.
+
+@misc{luxonis_oakd,
+  author = {{Luxonis}}, title = {{OAK-D SR PoE} with {ToF} (product page)},
+  howpublished = {\url{https://shop.luxonis.com/products/oak-d-sr-poe}},
+  year = {2026}, note = {Accessed 2026-02-26}
+}
+
+@misc{depthai_docs,
+  author = {{Luxonis}}, title = {{DepthAI} {API} Documentation},
+  howpublished = {\url{https://docs.luxonis.com/}},
+  year = {2026}, note = {Accessed 2026-02-26; depthai v3.5}
+}
+
+@misc{grabcad_xarm,
+  author = {Casas, Yair},
+  title  = {{Hiwonder} ({LewanSoul}) {X-Arm} Assembly ({CAD} model)},
+  howpublished = {\url{https://grabcad.com/library/hiwonder-x-arm-1}},
+  year   = {2020},
+  note   = {Uploaded 2020-11-10; STEP/IGES, category Robotics; "model by measures",
+            without gripper. Source of the xArm 1S URDF/STL meshes. GrabCAD Community
+            Library (no explicit license stated; uploader-retained, free download for
+            members) -- attribution given per GrabCAD terms. Accessed 2026.}
+}
+
+@misc{sketchfab_cokecan,
+  author = {sebastian204},
+  title  = {Soda Can 250ml},
+  howpublished = {\url{https://sketchfab.com/3d-models/soda-can-250ml-557bd388b7b340a88053016f39c3d514}},
+  year   = {2026},
+  note   = {CC-BY-4.0. Used as the coke\_can mesh (centred, recoloured solid red,
+            52x134 mm). Attribution string in src/ATTRIBUTION.md / Appendix A.}
+}
+
+@misc{sketchfab_banana,
+  author = {Kaukonen, Lassi},
+  title  = {Banana},
+  howpublished = {\url{https://sketchfab.com/3d-models/banana-dda3a1f707a94c52bed79578e120937c}},
+  year   = {2026},
+  note   = {CC-BY-4.0 (author @thesidekick). Used as the banana mesh (decimated,
+            recoloured solid yellow). Attribution in src/ATTRIBUTION.md / Appendix A.}
+}
+
+
+% #####################################################################
+% #  PART 4 -- EXCLUDED  (verified NOT used in your code -- do not cite
+% #  unless you actually add the method/discussion; otherwise false claim)
+% #####################################################################
+%
+% kuhn1955hungarian      -- pose_evaluator uses GREEDY nearest-neighbour, not
+%                           Hungarian. (Mention Hungarian only as future work.)
+% tsai1989handeye        -- NO hand-eye calibration exists. Phase 4B uses a
+%                           direct camera->table solvePnP on a ChArUco board.
+% zhang2000calibration   -- you use the OAK-D FACTORY intrinsics; you never ran
+%                           Zhang calibration yourself.
+% hinterstoisser2012add  -- pose is TRANSLATION ONLY (orientation=identity); no
+%                           ADD metric / no rotation error is computed.
+% fischler1981ransac     -- perception table-removal is a MEDIAN-DEPTH threshold,
+%                           not RANSAC. (Only relevant if you keep the optional
+%                           RANSAC plane sanity-check in solve_table_extrinsics.)
+% zhou2018open3d         -- Open3D is named in a docstring but NEVER imported.
+% olson2011apriltag      -- AprilTag not used; you chose ArUco/ChArUco. Cite only
+%                           if you explicitly justify ArUco over AprilTag.
+% kumra2020antipodal     -- learned grasping; not implemented. Related-work only
+%                           if you discuss learned-grasping alternatives.
+% belhedi2015            -- proposal's old ToF-noise ref; superseded by Nguyen +
+%                           Khoshelham + Sarbolandi + Foix. Drop.

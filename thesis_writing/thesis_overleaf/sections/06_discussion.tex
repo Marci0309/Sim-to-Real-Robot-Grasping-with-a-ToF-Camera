@@ -1,0 +1,112 @@
+\section{Discussion}\label{sec:discussion}
+\subsection{A valid negative result, not a broken pipeline}
+The central outcome of this thesis is negative: at the noise level actually measured on the
+OAK-D SR PoE, injecting a fitted ToF noise model into simulation does not change pose
+accuracy (Section~\ref{sec:res-inject}) and does not change simulated grasp feasibility
+(Section~\ref{sec:res-simmanip}). This refutes the proposal hypothesis. The result is sound
+rather than an artefact of an insensitive pipeline, because the same injector does degrade
+perception once the axial term is scaled up: pose error grows only past roughly $\times10$
+measured noise ($\sigma\approx9$\,mm) and manipulation collapses only at $\times20$
+(Section~\ref{sec:res-ablation}). Realistic noise simply sits an order of magnitude below
+the level at which it begins to matter.
+
+\subsection{The scope of the null: benign versus harsh environments}
+\label{sec:disc-scope}
+The negative result is not a claim that ToF noise never matters; it is a claim about a
+specific---and very common---operating regime. All of the noise measured in this work was
+recorded indoors under controlled, diffuse lighting, where the OAK-D's multi-frequency
+phase unwrapping keeps axial precision sub-millimetre (Section~\ref{sec:res-noise}). The
+ablation (Section~\ref{sec:res-ablation}) is the other half of the story: the estimator
+\emph{does} break once the axial term is scaled to roughly $\times10$ ($\sigma\approx9$\,mm),
+and grasping collapses by $\times20$ ($\sigma\approx18$\,mm). Crucially, these are not
+arbitrary stress levels---they are the levels that ToF cameras genuinely reach \emph{outside}
+the benign indoor regime. Under strong ambient infrared such as direct sunlight, in hot or
+industrial settings, in airborne particulates (dust, fog, smoke), on specular or dark
+low-reflectivity surfaces, and at extended range, ToF axial error is well documented to grow
+by an order of magnitude or more, driven by a reduced signal-to-background ratio, increased
+shot and thermal noise, and multipath \cite{foix2011lockin,sarbolandi2015kinect}. The
+practical reading of the negative result is therefore \emph{conditional on the environment}.
+For an indoor or office tabletop system---the setting this thesis targets---modelling
+realistic depth noise is not worth the effort, because the operating point sits an order of
+magnitude below the level at which noise reaches the median-centroid estimate. For a system
+meant to run outdoors, in a hot or hazardous industrial environment, or at long range, the
+same analysis predicts the opposite: the operating point moves into the $\times10$--$\times20$
+band where injected noise demonstrably degrades both pose accuracy
+(Table~\ref{tab:pose}) and grasp success (Table~\ref{tab:grasp}), and there a faithful
+ToF-noise model---together with a perception front-end designed to tolerate it---would pay
+off. The ablation should thus be read not as a curiosity an order of magnitude from reality,
+but as a map of the boundary between these two regimes, and it is the regime, not the noise
+model alone, that decides whether depth-noise fidelity is worth modelling.
+
+\subsection{Why the estimator absorbs realistic noise}
+The pose-relevant noise on the real sensor does not live in the body of each object but in
+a thin ring of edge mixed-pixels, whose flying-pixel rate reaches 53 to 99\% across the
+four objects while the bulk axial precision stays below $1$\,mm
+(Section~\ref{sec:res-noise}). A per-axis median centroid (Section~\ref{sec:methods-perc})
+has a 50\% breakdown point \cite{huber1981robust}, so it rejects this edge population as
+long as the outliers stay a minority of the blob. The injected axial Gaussian, by contrast,
+perturbs the quiet body pixels that the median already estimates well, so it has almost no
+leverage on the centroid. This also reframes the literature models: rather than adopting
+Nguyen's quadratic range term blindly, the Phase~2 data test it and find it inapplicable to
+this multi-frequency sensor \cite{nguyen2012modeling}.
+
+\subsection{Where the gap actually lives}
+If depth-noise fidelity does not govern the gap, what does? The real-versus-sim planar pose
+comparison (Section~\ref{sec:res-real}) puts the end-to-end gap at $-1.4$ to $+3.6$\,mm
+across all four objects, with clean and noisy simulation still indistinguishable on real
+data. The residual is consistent with calibration and lighting rather than sensor
+stochasticity: the extrinsic is a single direct \texttt{solvePnP} solution, factory
+intrinsics are used without a dedicated calibration run, and segmentation quality varies
+with illumination at the object boundary. This echoes the broader lesson of domain
+randomisation work, that the factors which dominate transfer are often not the ones a given
+pipeline randomises \cite{tobin2017domain}, and it locates the reality gap
+\cite{jakobi1995noise} for this system in geometry and photometry rather than in the
+depth-noise statistics.
+
+\subsection{Manipulation: the real bottleneck is kinematic, and grip mechanics decide}
+The manipulation results separate two error sources. In simulation, grasp feasibility is
+governed purely by perceived-centre error against jaw tolerance, so the three objects with
+adequate tolerance are flat from clean through $\times10$ and only the size-limited coke can
+is floored. On the real arm, the dominant error is not perception but the kinematic model:
+the xArm~1S over-reaches its URDF by roughly 28\%, and a global similarity-scale workaround
+leaves about $14$\,mm of residual position error, more than the blue box's $\pm7.5$\,mm
+capture tolerance, which confined open-loop grasping to a narrow patch. The closed-loop
+visual nudge (Section~\ref{sec:methods-servo}) removes this by construction: because the
+error is a difference between two points seen through the same overhead camera in the same
+frame, the wrong forward kinematics and the scale factor cancel as common-mode bias, and
+grasp accuracy becomes camera-bound rather than model-bound. With aiming corrected, the
+per-object grasp rates (Table~\ref{tab:phase4c}) are ordered by neither the simulated
+feasibility ceiling nor the measured pose error, but by the interaction of object shape with
+the parallel-jaw closing force: the coke can rises from a predicted 0\% to 67\% (a firm close
+on a slightly compliant, near-jaw-width can), while the golf ball falls from a favourable
+65\% prediction to 20\% (a smooth sphere that rolls out of flat jaws). This is consistent
+with the grasping literature's distinction between geometric reachability and grasp
+stability \cite{bohg2014grasp}.
+
+\subsection{Simulation realism and the analytic metric}
+A deliberate scoping choice shapes how the simulated manipulation numbers should be read.
+Gazebo Classic \cite{koenig2004gazebo} cannot reliably resolve contact grasps on small or
+curved objects in this setup; finger collisions pass through and object pose is unchanged
+across a jaw close. The simulated success metric is therefore analytic grasp feasibility,
+not scored physical contact, and it was renamed accordingly to avoid overclaiming. This
+keeps every simulated error attributable to perception, but it means the simulated rates are
+an upper bound on what a physical grasp would achieve. The contact-attach plugin
+\cite{link_attacher} is used only for visualisation.
+
+\subsection{Limitations}
+Several limitations bound the strength of these claims. The real perception comparison is
+$n=4$ per object: in four of five scenes one object drifted into the ToF edge zone and
+failed to segment, because the reliable ToF area is smaller than the RGB marker field of
+view. The real manipulation evaluation covers all four objects (60 trials) but is restricted
+to the near workspace ($r\le0.20$\,m); beyond that radius the loop gain falls because the
+marker is mounted high and behind the jaws, a known mounting issue rather than a limit of the
+method. The Phase-4A confidence intervals are Wald and collapse to zero width at 0\% and
+100\%, so the Wilson intervals used in Phase~4C are the more honest choice. The noise model
+omits spatial correlation and multipath, and the lateral jitter term uses the literature
+value of $0.8$\,px \cite{nguyen2012modeling} rather than a separately measured one. Finally,
+Gazebo Classic reached end of life in January~2025, so while the simulation results are
+stable they rest on an unsupported platform. None of these affect the central negative
+result, which is established independently in Phases~2 and~3 and corroborated on real data in
+Phase~4B.
+
+% =====================================================================
