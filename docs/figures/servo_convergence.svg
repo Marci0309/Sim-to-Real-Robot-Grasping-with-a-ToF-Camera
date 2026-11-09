@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 432" width="900" height="432" role="img" aria-labelledby="t d">
+<title id="t">Visual servo aim error for all 60 real trials against distance from the arm base</title>
+<desc id="d">Each vertical segment is one trial, from the first measured aim error to the last. Within 20 centimetres of the base 25 of 25 trials converged below 3 millimetres. Beyond 21 centimetres 3 of 24 did.</desc>
+<style>
+  svg { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6d68; --grid:#e1e0d9; --axis:#c3c2b7;
+        --band:#f1f0ea; --s1:#2a78d6; --s2:#eb6834; --s3:#898781; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#a3a198; --grid:#2c2c2a; --axis:#383835;
+          --band:#262624; --s1:#3987e5; --s2:#d95926; --s3:#898781; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .h1 { font-size:18px; font-weight:600; fill:var(--ink); }
+  .sub { font-size:13px; fill:var(--ink2); }
+  .ptitle { font-size:14px; font-weight:600; fill:var(--ink); }
+  .row { font-size:13px; font-weight:600; fill:var(--ink); }
+  .tick { font-size:12px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .val { font-size:12.5px; font-weight:600; fill:var(--ink); }
+  .note { font-size:12.5px; fill:var(--ink2); }
+</style>
+<rect width="900" height="432" rx="8" fill="var(--surface)"/>
+<text class="h1" x="20" y="31">Inside 20 cm the loop converged in 25 of 25 trials. Past 21 cm, in 3 of 24.</text>
+<text class="sub" x="20" y="52">All 60 real trials. Each segment runs from the first measured aim error to the last, before the jaws descend.</text>
+<circle cx="28" cy="74" r="4.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<text class="note" x="39" y="78">First measurement</text>
+<circle cx="172" cy="74" r="4.5" fill="var(--s1)"/>
+<text class="note" x="183" y="78">Last measurement, converged (≤ 3 mm)</text>
+<circle cx="452" cy="74" r="4.5" fill="var(--s2)"/>
+<text class="note" x="463" y="78">Last measurement, not converged</text>
+<rect x="58.0" y="104" width="449.9" height="272" fill="var(--band)"/>
+<line x1="58" x2="876" y1="376.0" y2="376.0" stroke="var(--axis)" stroke-width="1"/>
+<text class="tick" x="50" y="380.0" text-anchor="end">0</text>
+<line x1="58" x2="876" y1="285.3" y2="285.3" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="50" y="289.3" text-anchor="end">20</text>
+<line x1="58" x2="876" y1="194.7" y2="194.7" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="50" y="198.7" text-anchor="end">40</text>
+<line x1="58" x2="876" y1="104.0" y2="104.0" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="50" y="108.0" text-anchor="end">60</text>
+<text class="tick" transform="translate(16,240) rotate(-90)" text-anchor="middle">Aim error (mm)</text>
+<text class="tick" x="98.9" y="394" text-anchor="middle">15 cm</text>
+<text class="tick" x="262.5" y="394" text-anchor="middle">17 cm</text>
+<text class="tick" x="426.1" y="394" text-anchor="middle">19 cm</text>
+<text class="tick" x="589.7" y="394" text-anchor="middle">21 cm</text>
+<text class="tick" x="753.3" y="394" text-anchor="middle">23 cm</text>
+<text class="tick" x="467" y="414" text-anchor="middle">Object distance from the arm base</text>
+<line x1="116.9" x2="116.9" y1="299.3" y2="373.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="117.7" x2="117.7" y1="294.0" y2="369.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="119.5" x2="119.5" y1="298.1" y2="367.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="157.8" x2="157.8" y1="301.2" y2="362.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="172.5" x2="172.5" y1="300.6" y2="368.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="173.9" x2="173.9" y1="304.6" y2="366.6" stroke="var(--axis)" stroke-width="1"/>
+<line x1="242.9" x2="242.9" y1="272.1" y2="368.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="258.6" x2="258.6" y1="222.4" y2="369.7" stroke="var(--axis)" stroke-width="1"/>
+<line x1="290.8" x2="290.8" y1="314.1" y2="365.1" stroke="var(--axis)" stroke-width="1"/>
+<line x1="295.0" x2="295.0" y1="283.5" y2="367.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="303.3" x2="303.3" y1="324.8" y2="366.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="350.3" x2="350.3" y1="267.4" y2="369.7" stroke="var(--axis)" stroke-width="1"/>
+<line x1="379.1" x2="379.1" y1="235.3" y2="365.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="385.9" x2="385.9" y1="272.6" y2="372.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="398.9" x2="398.9" y1="275.7" y2="368.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="410.7" x2="410.7" y1="225.4" y2="363.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="417.4" x2="417.4" y1="304.7" y2="373.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="423.3" x2="423.3" y1="222.9" y2="364.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="433.5" x2="433.5" y1="303.7" y2="369.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="436.9" x2="436.9" y1="304.0" y2="369.6" stroke="var(--axis)" stroke-width="1"/>
+<line x1="446.5" x2="446.5" y1="298.0" y2="364.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="448.4" x2="448.4" y1="265.7" y2="373.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="473.0" x2="473.0" y1="201.8" y2="367.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="484.8" x2="484.8" y1="286.5" y2="365.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="493.5" x2="493.5" y1="214.0" y2="367.1" stroke="var(--axis)" stroke-width="1"/>
+<line x1="511.8" x2="511.8" y1="274.3" y2="364.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="519.8" x2="519.8" y1="273.4" y2="366.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="523.9" x2="523.9" y1="273.9" y2="366.7" stroke="var(--axis)" stroke-width="1"/>
+<line x1="532.4" x2="532.4" y1="204.2" y2="368.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="537.0" x2="537.0" y1="275.4" y2="363.1" stroke="var(--axis)" stroke-width="1"/>
+<line x1="571.9" x2="571.9" y1="269.6" y2="365.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="576.7" x2="576.7" y1="223.0" y2="367.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="581.9" x2="581.9" y1="266.8" y2="368.7" stroke="var(--axis)" stroke-width="1"/>
+<line x1="585.1" x2="585.1" y1="223.2" y2="349.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="586.8" x2="586.8" y1="221.1" y2="354.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="589.1" x2="589.1" y1="226.4" y2="353.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="590.9" x2="590.9" y1="267.6" y2="361.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="591.7" x2="591.7" y1="262.1" y2="372.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="594.8" x2="594.8" y1="278.5" y2="369.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="603.1" x2="603.1" y1="271.8" y2="354.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="606.0" x2="606.0" y1="269.2" y2="366.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="607.7" x2="607.7" y1="256.8" y2="358.5" stroke="var(--axis)" stroke-width="1"/>
+<line x1="624.0" x2="624.0" y1="265.8" y2="357.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="644.5" x2="644.5" y1="177.7" y2="334.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="644.5" x2="644.5" y1="176.4" y2="336.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="644.5" x2="644.5" y1="180.0" y2="344.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="656.2" x2="656.2" y1="259.4" y2="345.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="685.0" x2="685.0" y1="170.1" y2="315.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="687.4" x2="687.4" y1="158.5" y2="337.4" stroke="var(--axis)" stroke-width="1"/>
+<line x1="719.6" x2="719.6" y1="235.9" y2="340.9" stroke="var(--axis)" stroke-width="1"/>
+<line x1="720.4" x2="720.4" y1="232.8" y2="288.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="730.2" x2="730.2" y1="199.2" y2="199.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="732.3" x2="732.3" y1="222.2" y2="330.8" stroke="var(--axis)" stroke-width="1"/>
+<line x1="734.9" x2="734.9" y1="196.3" y2="325.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="771.2" x2="771.2" y1="196.4" y2="326.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="773.0" x2="773.0" y1="155.0" y2="321.2" stroke="var(--axis)" stroke-width="1"/>
+<line x1="777.7" x2="777.7" y1="181.0" y2="181.0" stroke="var(--axis)" stroke-width="1"/>
+<line x1="817.2" x2="817.2" y1="173.6" y2="256.1" stroke="var(--axis)" stroke-width="1"/>
+<line x1="824.2" x2="824.2" y1="129.5" y2="233.3" stroke="var(--axis)" stroke-width="1"/>
+<line x1="840.2" x2="840.2" y1="174.6" y2="297.4" stroke="var(--axis)" stroke-width="1"/>
+<circle cx="484.8" cy="286.5" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="519.8" cy="273.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="523.9" cy="273.9" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="656.2" cy="259.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="719.6" cy="235.9" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="606.0" cy="269.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="173.9" cy="304.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="172.5" cy="300.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="157.8" cy="301.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="840.2" cy="174.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="771.2" cy="196.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="734.9" cy="196.3" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="423.3" cy="222.9" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="379.1" cy="235.3" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="410.7" cy="225.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="607.7" cy="256.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="537.0" cy="275.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="511.8" cy="274.3" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="603.1" cy="271.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="594.8" cy="278.5" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="720.4" cy="232.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="385.9" cy="272.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="398.9" cy="275.7" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="295.0" cy="283.5" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="730.2" cy="199.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="777.7" cy="181.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="817.2" cy="173.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="493.5" cy="214.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="532.4" cy="204.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="473.0" cy="201.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="436.9" cy="304.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="433.5" cy="303.7" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="417.4" cy="304.7" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="571.9" cy="269.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="581.9" cy="266.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="590.9" cy="267.6" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="119.5" cy="298.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="117.7" cy="294.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="116.9" cy="299.3" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="586.8" cy="221.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="585.1" cy="223.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="576.7" cy="223.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="644.5" cy="177.7" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="644.5" cy="176.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="644.5" cy="180.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="687.4" cy="158.5" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="685.0" cy="170.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="448.4" cy="265.7" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="350.3" cy="267.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="591.7" cy="262.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="624.0" cy="265.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="773.0" cy="155.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="824.2" cy="129.5" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="242.9" cy="272.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="303.3" cy="324.8" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="732.3" cy="222.2" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="589.1" cy="226.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="446.5" cy="298.0" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="290.8" cy="314.1" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="258.6" cy="222.4" r="3.5" fill="var(--surface)" stroke="var(--s3)" stroke-width="1.5"/>
+<circle cx="656.2" cy="345.4" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="719.6" cy="340.9" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="840.2" cy="297.4" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="771.2" cy="326.3" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="734.9" cy="325.2" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="607.7" cy="358.5" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="603.1" cy="354.0" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="720.4" cy="288.3" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="730.2" cy="199.2" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="777.7" cy="181.0" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="817.2" cy="256.1" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="590.9" cy="361.5" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="586.8" cy="354.0" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="585.1" cy="349.5" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="644.5" cy="334.9" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="644.5" cy="336.9" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="644.5" cy="344.0" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="687.4" cy="337.4" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="685.0" cy="315.3" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="624.0" cy="357.3" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="773.0" cy="321.2" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="824.2" cy="233.3" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="732.3" cy="330.8" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="589.1" cy="353.4" r="4" fill="var(--s2)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="484.8" cy="365.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="519.8" cy="366.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="523.9" cy="366.7" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="606.0" cy="366.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="173.9" cy="366.6" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="172.5" cy="368.8" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="157.8" cy="362.5" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="423.3" cy="364.8" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="379.1" cy="365.4" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="410.7" cy="363.3" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="537.0" cy="363.1" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="511.8" cy="364.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="594.8" cy="369.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="385.9" cy="372.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="398.9" cy="368.5" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="295.0" cy="367.4" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="493.5" cy="367.1" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="532.4" cy="368.8" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="473.0" cy="367.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="436.9" cy="369.6" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="433.5" cy="369.3" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="417.4" cy="373.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="571.9" cy="365.4" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="581.9" cy="368.7" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="119.5" cy="367.5" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="117.7" cy="369.9" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="116.9" cy="373.0" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="576.7" cy="367.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="448.4" cy="373.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="350.3" cy="369.7" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="591.7" cy="372.2" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="242.9" cy="368.3" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="303.3" cy="366.8" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="446.5" cy="364.8" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="290.8" cy="365.1" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<circle cx="258.6" cy="369.7" r="4" fill="var(--s1)" stroke="var(--surface)" stroke-width="1.5"/>
+<text class="note" x="68.0" y="122">Reliable zone: the marker tracks the jaws</text>
+</svg>

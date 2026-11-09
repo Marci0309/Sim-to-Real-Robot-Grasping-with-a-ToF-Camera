@@ -1,0 +1,61 @@
+tag,object,placement_id,repeat,perceived_x,perceived_y,arm_x,arm_y,tilt_deg,ik_feasible,gripper_closed,lift_success,place_success,note
+real,blue_box,1,1,0.35428,0.16983,0.06353,-0.13942,88.0,1,1,1,1,servo 5meas 19.75->2.39mm conv
+real,blue_box,1,2,0.3542,0.16162,0.06988,-0.14008,88.0,1,1,1,1,servo 7meas 22.64->2.21mm conv
+real,blue_box,1,3,0.35559,0.1585,0.0724,-0.13923,88.0,1,1,1,1,servo 7meas 22.53->2.06mm conv
+real,blue_box,2,1,0.31121,0.22595,0.01698,-0.16864,88.0,1,1,1,1,servo 8meas 25.72->6.76mm NOCONV grip
+real,blue_box,2,2,0.30416,0.22173,0.01973,-0.17441,88.0,1,1,0,0,servo 8meas 30.91->7.75mm NOCONV miss
+real,blue_box,2,3,0.31813,0.22282,0.01991,-0.16352,88.0,1,1,1,1,servo 8meas 23.56->2.01mm conv
+real,blue_box,3,1,0.3672,0.28703,-0.02619,-0.12088,88.0,1,1,1,1,servo 4meas 15.75->2.08mm conv
+real,blue_box,3,2,0.36722,0.28566,-0.02513,-0.12096,88.0,1,1,1,1,servo 4meas 16.63->1.59mm conv
+real,blue_box,3,3,0.37011,0.29353,-0.03101,-0.11816,88.0,1,1,1,1,servo 4meas 16.49->2.97mm conv
+real,blue_box,4,1,0.29621,0.34188,-0.0738,-0.1718,88.0,1,1,0,0,servo 8meas 44.42->17.34mm NOCONV
+real,blue_box,4,2,0.30548,0.34301,-0.074,-0.16455,88.0,1,1,0,0,servo 8meas 39.61->10.96mm NOCONV
+real,blue_box,4,3,0.31012,0.34288,-0.07356,-0.16097,88.0,1,1,0,0,servo 8meas 39.65->11.2mm NOCONV
+real,blue_box,5,1,0.36755,0.37345,-0.09302,-0.11431,88.0,1,1,1,1,servo 4meas 33.77->2.47mm conv
+real,blue_box,5,2,0.37025,0.36771,-0.08839,-0.11263,88.0,1,1,1,1,servo 4meas 31.04->2.34mm conv
+real,blue_box,5,3,0.36626,0.36865,-0.0894,-0.11565,88.0,1,1,1,1,servo 5meas 33.22->2.8mm conv
+real,banana,1,1,0.34572,0.15492,0.07445,-0.14713,88.0,1,1,1,1,servo 8meas 26.29->3.86mm NOCONV | perfect!
+real,banana,1,2,0.35555,0.15564,0.07461,-0.13947,88.0,1,1,1,1,servo 6meas 22.2->2.84mm conv | 
+real,banana,1,3,0.35695,0.15911,0.07202,-0.13813,88.0,1,1,1,1,servo 6meas 22.43->2.61mm conv | 
+real,banana,2,1,0.31767,0.22676,0.01682,-0.16359,88.0,1,1,1,1,servo 6meas 22.98->4.86mm NOCONV miss2 | 
+real,banana,2,2,0.31764,0.23246,0.01241,-0.1632,88.0,1,1,1,1,servo 8meas 21.5->1.35mm conv | 
+real,banana,2,3,0.30333,0.22534,0.01688,-0.17479,88.0,1,1,1,1,servo 2meas 31.59->19.35mm NOCONV miss6 | 
+real,banana,3,1,0.34056,0.28028,-0.02291,-0.14198,88.0,1,1,0,0,servo 5meas 22.81->0.83mm conv | 
+real,banana,3,2,0.33917,0.28318,-0.02526,-0.14284,88.0,1,1,0,0,"servo 4meas 22.13->1.66mm conv | it touched the banana correctly, lifted it but then it dropped!"
+real,banana,3,3,0.3518,0.28166,-0.02316,-0.13318,88.0,1,1,0,0,servo 4meas 20.41->1.89mm conv | it lifted it but then it slipped!
+real,banana,4,1,0.30836,0.3357,-0.06813,-0.16285,88.0,1,1,1,1,servo 1meas 39.01->39.01mm NOCONV miss7 | 
+real,banana,4,2,0.30416,0.3416,-0.073,-0.16567,88.0,1,1,1,1,servo 1meas 43.02->43.02mm NOCONV miss7 | 
+real,banana,4,3,0.29852,0.33987,-0.07208,-0.17016,88.0,1,1,1,1,servo 3meas 44.64->26.45mm NOCONV miss5 | 
+real,banana,5,1,0.36478,0.38449,-0.10177,-0.11565,88.0,1,1,1,1,servo 6meas 35.73->1.96mm conv | 
+real,banana,5,2,0.35774,0.38276,-0.10094,-0.12122,88.0,1,1,0,0,servo 7meas 37.89->1.59mm conv | 
+real,banana,5,3,0.3661,0.38203,-0.09976,-0.1148,88.0,1,1,0,0,servo 6meas 38.42->1.98mm conv | it slipped out!
+real,golf_ball,1,1,0.35983,0.17193,0.06232,-0.13497,88.0,1,1,1,1,servo 5meas 15.89->1.42mm conv | perfect!
+real,golf_ball,1,2,0.35997,0.1725,0.06189,-0.13482,88.0,1,1,1,1,servo 5meas 15.94->1.48mm conv | 
+real,golf_ball,1,3,0.36251,0.17206,0.06241,-0.13289,88.0,1,1,1,1,servo 5meas 15.72->0.46mm conv | 
+real,golf_ball,2,1,0.32022,0.23406,0.01136,-0.16108,88.0,1,1,0,0,servo 7meas 23.48->2.33mm conv | missed
+real,golf_ball,2,2,0.31905,0.23358,0.01165,-0.16203,88.0,1,1,0,0,servo 8meas 24.09->1.61mm conv | 
+real,golf_ball,2,3,0.31795,0.23349,0.01164,-0.16289,88.0,1,1,0,0,servo 8meas 23.91->3.2mm NOCONV | 
+real,golf_ball,3,1,0.37272,0.26893,-0.01179,-0.11793,88.0,1,1,0,0,servo 4meas 17.18->1.88mm conv | missed
+real,golf_ball,3,2,0.37295,0.27034,-0.01286,-0.11764,88.0,1,1,0,0,servo 4meas 18.09->1.34mm conv | 
+real,golf_ball,3,3,0.37304,0.26754,-0.01069,-0.11778,88.0,1,1,0,0,servo 5meas 16.93->0.66mm conv | 
+real,golf_ball,4,1,0.32205,0.31969,-0.05475,-0.15343,88.0,1,1,0,0,servo 8meas 34.18->4.86mm NOCONV | missed at the top side
+real,golf_ball,4,2,0.32247,0.32049,-0.05534,-0.15304,88.0,1,1,0,0,servo 8meas 33.71->5.85mm NOCONV | 
+real,golf_ball,4,3,0.32364,0.32092,-0.05559,-0.1521,88.0,1,1,0,0,servo 8meas 33.75->1.94mm conv | 
+real,golf_ball,5,1,0.35078,0.39662,-0.11217,-0.12559,88.0,1,1,0,0,servo 8meas 43.74->9.06mm NOCONV | 
+real,golf_ball,5,2,0.35078,0.39662,-0.11217,-0.12559,88.0,1,1,0,0,servo 8meas 44.02->8.63mm NOCONV | 
+real,golf_ball,5,3,0.35078,0.39662,-0.11217,-0.12559,88.0,1,1,0,0,servo 8meas 43.24->7.06mm NOCONV | 
+real,coke_can,1,1,0.34707,0.40042,-0.11538,-0.12818,88.0,1,1,0,0,servo 8meas 47.97->8.51mm NOCONV | the angle of the gripper was not optimal
+real,coke_can,1,2,0.34705,0.39989,-0.11497,-0.12824,88.0,1,1,0,0,servo 8meas 45.43->13.39mm NOCONV | 
+real,coke_can,1,3,0.33294,0.28098,-0.02401,-0.14782,88.0,1,1,1,1,servo 5meas 24.32->0.61mm conv | good
+real,coke_can,2,1,0.34665,0.29583,-0.0345,-0.13614,88.0,1,1,1,1,servo 5meas 23.96->1.39mm conv | 
+real,coke_can,2,2,0.32992,0.19025,0.04596,-0.15677,88.0,1,1,1,1,servo 7meas 25.13->0.84mm conv | 
+real,coke_can,2,3,0.32188,0.20082,0.0372,-0.16223,88.0,1,1,1,1,"servo 8meas 24.31->4.13mm NOCONV | due to the state of the object, it managed to grasp it by slightly pushing the object together till it had a good grasp on it"
+real,coke_can,3,1,0.32532,0.38658,-0.10626,-0.14602,88.0,1,1,0,0,servo 8meas 48.74->12.08mm NOCONV | 
+real,coke_can,3,2,0.32277,0.39445,-0.11253,-0.14741,88.0,1,1,0,0,servo 8meas 54.37->31.47mm NOCONV | 
+real,coke_can,3,3,0.36015,0.29701,-0.03443,-0.1256,88.0,1,1,1,1,servo 5meas 22.91->1.7mm conv | 
+real,coke_can,4,1,0.37593,0.17681,0.05971,-0.12216,88.0,1,1,1,1,servo 3meas 11.29->2.02mm conv | 
+real,coke_can,4,2,0.29906,0.24418,0.00199,-0.17671,88.0,1,1,0,0,servo 8meas 33.92->9.97mm NOCONV | 
+real,coke_can,4,3,0.31844,0.30418,-0.04301,-0.15735,88.0,1,1,1,1,servo 8meas 33.0->4.99mm NOCONV | 
+real,coke_can,5,1,0.33562,0.23493,0.01181,-0.14911,88.0,1,1,1,1,servo 5meas 17.21->2.48mm conv | 
+real,coke_can,5,2,0.39216,0.15681,0.07637,-0.11106,88.0,1,1,1,1,servo 3meas 13.65->2.4mm conv | 
+real,coke_can,5,3,0.38719,0.36647,-0.08619,-0.09962,88.0,1,1,1,1,servo 5meas 33.89->1.4mm conv | 
