@@ -1,0 +1,5 @@
+object,n,k,real_lift_rate,ci95_lo,ci95_hi,sim_feasible_pct,real_pose_err_mm,capture_tol_mm,predicted
+coke_can,15,10,0.6667,0.4171,0.8482,0.0,9.38,1.5,~0% (err >> tol)
+banana,15,10,0.6667,0.4171,0.8482,65.0,12.13,10.0,marginal/fail
+golf_ball,15,3,0.2,0.0705,0.4519,65.0,4.75,6.0,likely (err < tol)
+blue_box,15,11,0.7333,0.4805,0.891,100.0,7.42,7.5,marginal

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 322" width="820" height="322" role="img" aria-labelledby="t d">
+<title id="t">Real lift rate against simulated grasp feasibility</title>
+<desc id="d">Dumbbell per object. Blue box 100 percent simulated, 73 real. Banana 65 simulated, 67 real. Coke can 0 simulated, 67 real. Golf ball 65 simulated, 20 real.</desc>
+<style>
+  svg { --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#6f6d68; --grid:#e1e0d9; --axis:#c3c2b7;
+        --band:#f1f0ea; --s1:#2a78d6; --s2:#eb6834; --s3:#898781; }
+  @media (prefers-color-scheme: dark) {
+    svg { --surface:#1a1a19; --ink:#ffffff; --ink2:#c3c2b7; --muted:#a3a198; --grid:#2c2c2a; --axis:#383835;
+          --band:#262624; --s1:#3987e5; --s2:#d95926; --s3:#898781; }
+  }
+  text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .h1 { font-size:18px; font-weight:600; fill:var(--ink); }
+  .sub { font-size:13px; fill:var(--ink2); }
+  .ptitle { font-size:14px; font-weight:600; fill:var(--ink); }
+  .row { font-size:13px; font-weight:600; fill:var(--ink); }
+  .tick { font-size:12px; fill:var(--muted); font-variant-numeric:tabular-nums; }
+  .val { font-size:12.5px; font-weight:600; fill:var(--ink); }
+  .note { font-size:12.5px; fill:var(--ink2); }
+</style>
+<rect width="820" height="322" rx="8" fill="var(--surface)"/>
+<text class="h1" x="20" y="31">The real arm beat the simulator on the can and lost to it on the golf ball.</text>
+<text class="sub" x="20" y="52">Aim error alone cannot explain these rates, because the simulated metric ignores how an object sits in the jaws.</text>
+<circle cx="28" cy="74" r="5" fill="var(--surface)" stroke="var(--s3)" stroke-width="2"/>
+<text class="note" x="40" y="78">Simulator: analytic feasibility (clean depth, n=20)</text>
+<circle cx="376" cy="74" r="5" fill="var(--s1)"/>
+<text class="note" x="388" y="78">Real arm: lift and hold (n=15)</text>
+<line x1="598" x2="622" y1="74" y2="74" stroke="var(--s1)" stroke-width="2"/>
+<text class="note" x="630" y="78">95% Wilson interval</text>
+<line x1="104.0" x2="104.0" y1="100" y2="282" stroke="var(--axis)" stroke-width="1"/>
+<text class="tick" x="104.0" y="300" text-anchor="middle">0%</text>
+<line x1="251.0" x2="251.0" y1="100" y2="282" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="251.0" y="300" text-anchor="middle">25%</text>
+<line x1="398.0" x2="398.0" y1="100" y2="282" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="398.0" y="300" text-anchor="middle">50%</text>
+<line x1="545.0" x2="545.0" y1="100" y2="282" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="545.0" y="300" text-anchor="middle">75%</text>
+<line x1="692.0" x2="692.0" y1="100" y2="282" stroke="var(--grid)" stroke-width="1"/>
+<text class="tick" x="692.0" y="300" text-anchor="middle">100%</text>
+<text class="ptitle" x="90" y="133" text-anchor="end">Blue box</text>
+<line x1="692.0" x2="535.2" y1="128" y2="128" stroke="var(--axis)" stroke-width="2"/>
+<line x1="386.5" x2="627.9" y1="137" y2="137" stroke="var(--s1)" stroke-width="2" stroke-linecap="round"/>
+<circle cx="692.0" cy="128" r="6" fill="var(--surface)" stroke="var(--s3)" stroke-width="2"/>
+<circle cx="535.2" cy="128" r="6" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+<text class="val" x="800" y="133" text-anchor="end">11/15 = 73%</text>
+<text class="ptitle" x="90" y="177" text-anchor="end">Banana</text>
+<line x1="486.2" x2="496.0" y1="172" y2="172" stroke="var(--axis)" stroke-width="2"/>
+<line x1="349.3" x2="602.8" y1="181" y2="181" stroke="var(--s1)" stroke-width="2" stroke-linecap="round"/>
+<circle cx="486.2" cy="172" r="6" fill="var(--surface)" stroke="var(--s3)" stroke-width="2"/>
+<circle cx="496.0" cy="172" r="6" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+<text class="val" x="800" y="177" text-anchor="end">10/15 = 67%</text>
+<text class="ptitle" x="90" y="221" text-anchor="end">Coke can</text>
+<line x1="104.0" x2="496.0" y1="216" y2="216" stroke="var(--axis)" stroke-width="2"/>
+<line x1="349.3" x2="602.8" y1="225" y2="225" stroke="var(--s1)" stroke-width="2" stroke-linecap="round"/>
+<circle cx="104.0" cy="216" r="6" fill="var(--surface)" stroke="var(--s3)" stroke-width="2"/>
+<circle cx="496.0" cy="216" r="6" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+<text class="val" x="800" y="221" text-anchor="end">10/15 = 67%</text>
+<text class="ptitle" x="90" y="265" text-anchor="end">Golf ball</text>
+<line x1="486.2" x2="221.6" y1="260" y2="260" stroke="var(--axis)" stroke-width="2"/>
+<line x1="145.4" x2="369.7" y1="269" y2="269" stroke="var(--s1)" stroke-width="2" stroke-linecap="round"/>
+<circle cx="486.2" cy="260" r="6" fill="var(--surface)" stroke="var(--s3)" stroke-width="2"/>
+<circle cx="221.6" cy="260" r="6" fill="var(--s1)" stroke="var(--surface)" stroke-width="2"/>
+<text class="val" x="800" y="265" text-anchor="end">3/15 = 20%</text>
+</svg>

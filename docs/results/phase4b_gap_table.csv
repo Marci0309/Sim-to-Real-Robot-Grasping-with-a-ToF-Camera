@@ -1,0 +1,13 @@
+condition,object,n,planar_rmse_mm,planar_mae_mm,planar_median_mm
+sim_clean,coke_can,20,10.44,6.37,4.87
+sim_clean,banana,20,13.27,10.56,8.32
+sim_clean,golf_ball,20,6.15,5.44,5.23
+sim_clean,blue_box,20,3.78,3.45,3.5
+sim_noisy_oakd,coke_can,20,10.35,6.23,4.79
+sim_noisy_oakd,banana,20,13.24,10.54,8.36
+sim_noisy_oakd,golf_ball,20,6.02,5.3,5.2
+sim_noisy_oakd,blue_box,20,3.54,3.22,3.29
+real,coke_can,4,9.38,9.28,9.29
+real,banana,4,12.13,11.92,11.56
+real,golf_ball,4,4.75,4.25,3.99
+real,blue_box,4,7.42,6.33,5.03
